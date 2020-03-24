@@ -1,0 +1,139 @@
+import sqlite3,time
+import pandas as pd
+import numpy as np
+
+from flask import Flask, flash, redirect, render_template, request, session, abort
+import os
+
+app = Flask(__name__)
+app.config['SESSION_TYPE'] = 'filesystem'
+app.config['SECRET_KEY'] = os.urandom(12)
+
+@app.route('/')
+def home():
+    if not session.get('logged_in'):
+        return render_template('login.html')
+    else:
+        return render_template('home.html')
+
+@app.route('/login', methods=['POST'])
+def do_admin_login():
+    if request.form['password'] == 'eFootball' and request.form['username'] == 'bet365':
+        session['logged_in'] = True
+    else:
+        flash('wrong password!')
+    
+    return home()
+
+@app.route('/getgames.php')
+def getgames():
+
+    days = request.args.get('days')
+    searchstr = request.args.get('search')
+    
+    conn = sqlite3.connect('efootball.db')
+    c = conn.cursor()
+
+    datefilter ="strftime('%s',DATE) BETWEEN strftime('%s','now','-"+days+" days') AND strftime('%s','now')"
+
+    if not searchstr == 'None':
+        searchfilter = " AND (HOME || AWAY) LIKE '%"+searchstr+"%'"
+    else:
+        searchfilter = ''
+    
+    query = 'SELECT DATE, HOME, AWAY, "HOME SCORE", "AWAY SCORE" FROM MATCHES WHERE ('+datefilter + searchfilter + ')'
+    
+    c.execute(query)   
+    
+    resp = c.fetchall()
+    
+    responsetext = '<h2>Table</h2><p>'
+    
+    if resp:
+        #Reconstruct the table
+        table = pd.read_sql_query(query,conn)
+        table = build_table(table)
+        responsetext += table.to_html()
+    
+
+        responsetext += '<p>'
+        
+        responsetext +='<table class="table table-dark table-bordered table-striped" id="gamestable"><tr><th onclick="sortTable(0)">Date</th><th onclick="sortTable(1)">Home</th><th onclick="sortTable(2)">Away</th><th onclick="sortTable(3)">Home Score</th><th onclick="sortTable(4)">Away Score</th></tr>'
+        
+        for r in resp:
+            responsetext += '<tr><td>'+str(r[0])+'</td><td>'+str(r[1])+'</td><td>'+str(r[2])+'</td><td>'+str(r[3])+'</td><td>'+str(r[4])+'</td></tr>'
+    
+        responsetext += '</table>'
+    
+    conn.close()    
+    print(responsetext)
+    return responsetext
+
+
+@app.route('/getdbupdatetime.php')
+def getdbupdatetime():
+    
+    updatetime = os.path.getmtime('efootball.db') 
+    return str(updatetime)
+
+def build_table(df,season=None):
+
+    #Build table of unique teams
+    teams = get_unique_values_from_column(df,['HOME','AWAY'])
+    #Remove duplicates
+    df.drop_duplicates(subset=['DATE','HOME','AWAY'],inplace=True,keep='last')
+    df.dropna(subset=['HOME SCORE','AWAY SCORE'],inplace=True)
+    #Build zero vector to populate table with initially
+    zero_column = np.zeros(len(teams),dtype=int)
+    #Initialise dataframe
+    table = pd.DataFrame(index=teams,data={'P':zero_column,'W':zero_column,'D':zero_column,'L':zero_column,'F':zero_column,'A':zero_column,'+/-':zero_column,'Pts':zero_column,'GPG':zero_column})
+  
+    
+    for i in df.index:
+        this_game = df.loc[i]
+        
+        h_s = this_game['HOME SCORE']
+        a_s = this_game['AWAY SCORE']
+        if h_s == a_s:
+            points = [1,1]
+            table.at[this_game['HOME'],'D'] += 1
+            table.at[this_game['AWAY'],'D'] += 1
+        if h_s > a_s:
+            points = [3,0]
+            table.at[this_game['HOME'],'W'] += 1
+            table.at[this_game['AWAY'],'L'] += 1            
+        if h_s < a_s:
+            points = [0,3]
+            table.at[this_game['HOME'],'L'] += 1
+            table.at[this_game['AWAY'],'W'] += 1
+        
+        table.at[this_game['HOME'],'P'] += 1
+        table.at[this_game['HOME'],'F'] += this_game['HOME SCORE']
+        table.at[this_game['HOME'],'A'] += this_game['AWAY SCORE']
+        table.at[this_game['HOME'],'Pts'] += points[0]
+        table.at[this_game['HOME'],'+/-'] += h_s-a_s
+        table.at[this_game['AWAY'],'P'] += 1
+        table.at[this_game['AWAY'],'F'] += this_game['AWAY SCORE']
+        table.at[this_game['AWAY'],'A'] += this_game['HOME SCORE']
+        table.at[this_game['AWAY'],'Pts'] += points[1]
+        table.at[this_game['AWAY'],'+/-'] += a_s-h_s
+        
+    table['GPG'] = (table['F']-table['A'])/table['P']
+    
+    table.sort_values(by=['GPG'],ascending=False,inplace=True)
+
+    return table
+
+def get_unique_values_from_column(df,cols):
+    
+    unique  = set()
+    
+    for col in cols:
+        unique = unique.union(set(df[col].values))
+        
+    return unique
+
+if __name__ == "__main__":
+    app.config['SESSION_TYPE'] = 'filesystem'
+    app.config['SECRET_KEY'] = os.urandom(12)
+    app.run()
