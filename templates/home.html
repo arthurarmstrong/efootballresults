@@ -59,7 +59,11 @@ function getgames() {
   xhttp.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
       document.getElementById("games").innerHTML = this.responseText;
-      console.log(this.responseText)
+
+      //Put a header for the results table
+      $('#gamestable').before('<h2>Results</h2>')
+      //Do some formatting on the ladder table
+      $('#ladder > table:first').addClass('table table-bordered table-striped')
     }
   };
 

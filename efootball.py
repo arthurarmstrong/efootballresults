@@ -47,7 +47,7 @@ def getgames():
     
     resp = c.fetchall()
     
-    responsetext = '<h2>Table</h2><p>'
+    responsetext = '<h2>Table</h2><p><div id="ladder" class="text-center center-block">'
     
     if resp:
         #Reconstruct the table
@@ -56,7 +56,7 @@ def getgames():
         responsetext += table.to_html()
     
 
-        responsetext += '<p>'
+        responsetext += '</div><p>'
         
         responsetext +='<table class="table table-dark table-bordered table-striped" id="gamestable"><tr><th onclick="sortTable(0)">Date</th><th onclick="sortTable(1)">Home</th><th onclick="sortTable(2)">Away</th><th onclick="sortTable(3)">Home Score</th><th onclick="sortTable(4)">Away Score</th></tr>'
         
