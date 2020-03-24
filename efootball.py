@@ -66,7 +66,7 @@ def getgames():
         responsetext += '</table>'
     
     conn.close()    
-    print(responsetext)
+
     return responsetext
 
 
