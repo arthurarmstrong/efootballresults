@@ -41,19 +41,20 @@ def getgames():
     else:
         searchfilter = ''
     
-    query = 'SELECT DATE, HOME, AWAY, "HOME SCORE", "AWAY SCORE" FROM MATCHES WHERE ('+datefilter + searchfilter + ')'
+    query = 'SELECT DATE, HOME, AWAY, "HOME SCORE", "AWAY SCORE", STAGE FROM MATCHES WHERE ('+datefilter + searchfilter + ') ORDER BY DATE DESC'
     
     c.execute(query)   
     
     resp = c.fetchall()
     
-    responsetext = '<h2>Table</h2><p><div id="ladder" class="text-center center-block">'
+    responsetext = '<h2>Table - Group Games</h2><p><div id="ladder" class="text-center center-block">'
     
     if resp:
         #Reconstruct the table
         table = pd.read_sql_query(query,conn)
         table = build_table(table)
         responsetext += table.to_html()
+        
     
 
         responsetext += '</div><p>'
@@ -86,7 +87,7 @@ def build_table(df,season=None):
     #Build zero vector to populate table with initially
     zero_column = np.zeros(len(teams),dtype=int)
     #Initialise dataframe
-    table = pd.DataFrame(index=teams,data={'P':zero_column,'W':zero_column,'D':zero_column,'L':zero_column,'F':zero_column,'A':zero_column,'+/-':zero_column,'Pts':zero_column,'GPG':zero_column})
+    table = pd.DataFrame(index=teams,data={'P':zero_column,'W':zero_column,'D':zero_column,'L':zero_column,'F':zero_column,'A':zero_column,'+/-':zero_column,'Pts':zero_column,'GD Per Game':zero_column})
   
     
     for i in df.index:
@@ -118,9 +119,9 @@ def build_table(df,season=None):
         table.at[this_game['AWAY'],'Pts'] += points[1]
         table.at[this_game['AWAY'],'+/-'] += a_s-h_s
         
-    table['GPG'] = (table['F']-table['A'])/table['P']
+    table['GD Per Game'] = (table['F']-table['A'])/table['P']
     
-    table.sort_values(by=['GPG'],ascending=False,inplace=True)
+    table.sort_values(by=['GD Per Game'],ascending=False,inplace=True)
 
     return table
 
