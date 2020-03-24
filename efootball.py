@@ -46,19 +46,22 @@ def getgames():
     c.execute(query)   
     
     resp = c.fetchall()
-    
-    responsetext = '<h2>Table - Group Games</h2><p><div id="ladder" class="text-center center-block">'
-    
+        
     if resp:
-        #Reconstruct the table
+        #Turn the results into a pandas file
         table = pd.read_sql_query(query,conn)
-        table = build_table(table)
-        responsetext += table.to_html()
+        #Build a table of the group games
+        responsetext = '<div id="ladder" class="text-center center-block"><h2>Table - Group Games</h2><p>'
+        grouptable = build_table(table[table['STAGE']=='Групповой этап'])
+        responsetext += grouptable.to_html() + '<p>'
+        #Make a new header for the finals table
+        responsetext += '<h2>Table - Finals Games</h2><p><div id="ladder" class="text-center center-block">'
+        #Build a table of the finals games
+        finaltable = build_table(table[table['STAGE']!='Групповой этап'])
+        responsetext += finaltable.to_html() + '</div><p>'
         
-    
-
-        responsetext += '</div><p>'
         
+        #Build the table of individual games
         responsetext +='<table class="table table-dark table-bordered table-striped" id="gamestable"><tr><th onclick="sortTable(0)">Date</th><th onclick="sortTable(1)">Home</th><th onclick="sortTable(2)">Away</th><th onclick="sortTable(3)">Home Score</th><th onclick="sortTable(4)">Away Score</th></tr>'
         
         for r in resp:
