@@ -123,6 +123,7 @@ def build_table(df,season=None):
         table.at[this_game['AWAY'],'+/-'] += a_s-h_s
         
     table['GD Per Game'] = (table['F']-table['A'])/table['P']
+    table = table.round(2)
     
     table.sort_values(by=['GD Per Game'],ascending=False,inplace=True)
 
