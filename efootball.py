@@ -41,22 +41,26 @@ def getgames():
     else:
         searchfilter = ''
     
+    
+    
     query = 'SELECT DATE, HOME, AWAY, "HOME SCORE", "AWAY SCORE", STAGE FROM MATCHES WHERE ('+datefilter + searchfilter + ') ORDER BY DATE DESC'
     
+    #Get the selected match data
     c.execute(query)   
-    
     resp = c.fetchall()
+    
+    #Get the over under data
+    c.execute('SELECT DATE, "HOME SCORE", "AWAY SCORE" FROM MATCHES WHERE ('+datefilter + searchfilter +'AND "HOME SCORE" + "AWAY SCORE" > 2'+ ')')
+    totalresp = c.fetchall()
+    #Get total stats
+    gamecount = len(resp)
+    overperc = len(totalresp)/gamecount
         
     responsetext = ''
+    
     if resp:
 
-        #Get the over under data
-        gamecount = len(resp)
-        c.execute('SELECT DATE, "HOME SCORE", "AWAY SCORE" FROM MATCHES WHERE ('+datefilter + searchfilter +'AND "HOME SCORE" + "AWAY SCORE" > 2'+ ')')
-        totalresp = c.fetchall()
-        overperc = len(totalresp)/gamecount
-        print(gamecount,len(totalresp))
-        responsetext = '<div id="overunder" class="text-center"><table class="table table-bordered table-striped"><th colspan="2">Overall Stats</th><tr><td>Games</td><td>'+str(len(resp))+'</td></tr><tr><td>Over</td><td>'+str(len(totalresp))+' ('+str(round(overperc*100,1))+'%)</td></tr><tr><td>Under</td><td>'+str(len(resp)-len(totalresp))+' ('+str(round(100*(1-overperc),1))+'%)</td></tr></table></div><p>'
+        responsetext += '<div id="overunder" class="text-center"><table class="table table-bordered table-striped"><th colspan="2">Overall Stats</th><tr><td>Games</td><td>'+str(len(resp))+'</td></tr><tr><td>Over</td><td>'+str(len(totalresp))+' ('+str(round(overperc*100,1))+'%)</td></tr><tr><td>Under</td><td>'+str(len(resp)-len(totalresp))+' ('+str(round(100*(1-overperc),1))+'%)</td></tr></table></div><p>'
         
         #Turn the results into a pandas file
         table = pd.read_sql_query(query,conn)
@@ -74,6 +78,12 @@ def getgames():
         responsetext +='<table class="table table-dark table-bordered table-striped" id="gamestable"><tr><th onclick="sortTable(0)">Date</th><th onclick="sortTable(1)">Home</th><th onclick="sortTable(2)">Away</th><th onclick="sortTable(3)">Home Score</th><th onclick="sortTable(4)">Away Score</th></tr>'
         
         for r in resp:
+            #Round scores
+            if not r[3] == None:
+                r = (r[0],r[1],r[2],int(r[3]),int(r[4]))
+            else:
+                r = (r[0],r[1],r[2],'-','-')
+            #Add row
             responsetext += '<tr><td>'+str(r[0])+'</td><td>'+str(r[1])+'</td><td>'+str(r[2])+'</td><td>'+str(r[3])+'</td><td>'+str(r[4])+'</td></tr>'
     
     
