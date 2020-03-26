@@ -33,16 +33,16 @@ def getgames():
     
     conn = sqlite3.connect('efootball.db')
     c = conn.cursor()
-
+    
     datefilter ="strftime('%s',DATE) BETWEEN strftime('%s','now','-"+days+" days') AND strftime('%s','now')"
 
     if not searchstr == 'None':
         searchfilter = " AND (HOME || AWAY) LIKE '%"+searchstr+"%'"
+        labelsuffix = ' for search "'+searchstr+'".'
     else:
         searchfilter = ''
-    
-    
-    
+        labelsuffix = ''
+        
     query = 'SELECT DATE, HOME, AWAY, "HOME SCORE", "AWAY SCORE", STAGE FROM MATCHES WHERE ('+datefilter + searchfilter + ') ORDER BY DATE DESC'
     
     #Get the selected match data
@@ -60,7 +60,7 @@ def getgames():
     
     if resp:
 
-        responsetext += '<div id="overunder" class="text-center"><table class="table table-bordered table-striped"><th colspan="2">Overall Stats</th><tr><td>Games</td><td>'+str(len(resp))+'</td></tr><tr><td>Over</td><td>'+str(len(totalresp))+' ('+str(round(overperc*100,1))+'%)</td></tr><tr><td>Under</td><td>'+str(len(resp)-len(totalresp))+' ('+str(round(100*(1-overperc),1))+'%)</td></tr></table></div><p>'
+        responsetext += '<div id="overunder" class="text-center"><table class="table table-bordered table-striped"><th colspan="2">Overall Stats'+labelsuffix+'</th><tr><td>Games</td><td>'+str(len(resp))+'</td></tr><tr><td>Over</td><td>'+str(len(totalresp))+' ('+str(round(overperc*100,1))+'%)</td></tr><tr><td>Under</td><td>'+str(len(resp)-len(totalresp))+' ('+str(round(100*(1-overperc),1))+'%)</td></tr></table></div><p>'
         
         #Turn the results into a pandas file
         table = pd.read_sql_query(query,conn)

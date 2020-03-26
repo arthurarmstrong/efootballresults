@@ -69,15 +69,17 @@ function getgames() {
 
       //Clear the search box text
       $('#search').val('')
+      $('#search').attr('placeholder','Search and press enter to submit')
 
     }
   };
 
+  $('#search').attr('placeholder','Loading. Please wait...')
   var searchstr = document.getElementById('search').value
   if (searchstr == '') {searchstr='None'}
-  $('#search').val('Loading. Please wait...')
   xhttp.open("GET", "getgames.php?days="+document.getElementById('daystoshow').value+"&search="+searchstr, true);
   xhttp.send();
+  $
 }
 
 function getLog() {
