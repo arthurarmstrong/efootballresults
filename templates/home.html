@@ -54,6 +54,7 @@
 
 function getgames() {
 
+
   var xhttp;
   xhttp = new XMLHttpRequest();
   xhttp.onreadystatechange = function() {
@@ -66,11 +67,15 @@ function getgames() {
       $('#ladder table').addClass('table table-bordered table-striped')
       $('th').addClass('text-center')
 
+      //Clear the search box text
+      $('#search').val('')
+
     }
   };
 
   var searchstr = document.getElementById('search').value
   if (searchstr == '') {searchstr='None'}
+  $('#search').val('Loading. Please wait...')
   xhttp.open("GET", "getgames.php?days="+document.getElementById('daystoshow').value+"&search="+searchstr, true);
   xhttp.send();
 }
