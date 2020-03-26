@@ -37,7 +37,7 @@
 <div id="main" class="container-fluid" style="background-image: '{{ url_for('static',filename='prophetoddsbg.jpg')}}';">
 
     <div>
-        <input class="form-control" type="text" placeholder="Search" aria-label="Search" id="search" onkeyup="getgames();">
+        <input class="form-control" type="text" placeholder="Search and press enter to submit" aria-label="Search" id="search">
     </div>
 
     <div id="games" class="container-fluid" style="background-color:white;opacity:0.92;">
@@ -177,6 +177,14 @@ getdbupdatetime();
 changedayslabel();
 getgames();
 document.getElementById('main').style.backgroundImage = "url({{ url_for('static',filename='prophetoddsbg.jpg')}})";
+
+document.getElementById('search').addEventListener("keyup", function(event) {
+  // Number 13 is the "Enter" key on the keyboard
+  if (event.keyCode === 13) {
+    getgames();
+  }
+})
+
 </script>
 
 <script src="{{ url_for('static',filename='style_snippets/faux_select.js')}}"></script>
