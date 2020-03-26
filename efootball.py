@@ -47,11 +47,21 @@ def getgames():
     
     resp = c.fetchall()
         
+    responsetext = ''
     if resp:
+
+        #Get the over under data
+        gamecount = len(resp)
+        c.execute('SELECT DATE, "HOME SCORE", "AWAY SCORE" FROM MATCHES WHERE ('+datefilter + searchfilter +'AND "HOME SCORE" + "AWAY SCORE" > 2'+ ')')
+        totalresp = c.fetchall()
+        overperc = len(totalresp)/gamecount
+        print(gamecount,len(totalresp))
+        responsetext = '<div id="overunder" class="text-center"><table class="table table-bordered table-striped"><th colspan="2">Overall Stats</th><tr><td>Games</td><td>'+str(len(resp))+'</td></tr><tr><td>Over</td><td>'+str(len(totalresp))+' ('+str(round(overperc*100,1))+'%)</td></tr><tr><td>Under</td><td>'+str(len(resp)-len(totalresp))+' ('+str(round(100*(1-overperc),1))+'%)</td></tr></table></div><p>'
+        
         #Turn the results into a pandas file
         table = pd.read_sql_query(query,conn)
         #Build a table of the group games
-        responsetext = '<div id="ladder" class="text-center center-block"><h2>Table - Group Games</h2><p>'
+        responsetext += '<div id="ladder" class="text-center center-block"><h2>Table - Group Games</h2><p>'
         grouptable = build_table(table[table['STAGE']=='Групповой этап'])
         responsetext += grouptable.to_html() + '<p>'
         #Make a new header for the finals table
@@ -60,14 +70,14 @@ def getgames():
         finaltable = build_table(table[table['STAGE']!='Групповой этап'])
         responsetext += finaltable.to_html() + '</div><p>'
         
-        
         #Build the table of individual games
         responsetext +='<table class="table table-dark table-bordered table-striped" id="gamestable"><tr><th onclick="sortTable(0)">Date</th><th onclick="sortTable(1)">Home</th><th onclick="sortTable(2)">Away</th><th onclick="sortTable(3)">Home Score</th><th onclick="sortTable(4)">Away Score</th></tr>'
         
         for r in resp:
             responsetext += '<tr><td>'+str(r[0])+'</td><td>'+str(r[1])+'</td><td>'+str(r[2])+'</td><td>'+str(r[3])+'</td><td>'+str(r[4])+'</td></tr>'
     
-        responsetext += '</table>'
+    
+        responsetext += '</table></div>'
     
     conn.close()    
 

@@ -1,6 +1,5 @@
-<link rel="stylesheet" href="/static/loginstyle.css" type="text/css">
+<link rel="stylesheet" href="{{ url_for('static',filename='loginstyle.css')}}" type="text/css">
 {% block body %}
-
 
 <form action="/login" method="POST">
 <div class="login">

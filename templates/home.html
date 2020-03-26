@@ -16,7 +16,7 @@
 <body class='bg-dark'>
 
     <nav class="navbar navbar-dark bg-dark">
-      <a class="navbar-brand" href="#"><i>Efootball Results</i></a><p>
+      <a class="navbar-brand" href="#"><i>Efootball Liga Pro Results</i></a><p>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#menu" aria-controls="menu" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -46,7 +46,7 @@
     
 </div>
 <div class = 'text-light bg-dark' id="dbupdated"></div>
-<div class='text-light bg-dark'>E-Football Results, by Gerard Armstrong (2020)</div>
+<div class='text-light bg-dark'>E-Football Liga Pro Results, by Gerard Armstrong (2020)</div>
 
 </body>
 </html>
@@ -64,12 +64,13 @@ function getgames() {
       $('#gamestable').before('<h2>Results</h2>')
       //Do some formatting on the ladder table
       $('#ladder table').addClass('table table-bordered table-striped')
+      $('th').addClass('text-center')
+
     }
   };
 
   var searchstr = document.getElementById('search').value
   if (searchstr == '') {searchstr='None'}
-    console.log(document.getElementById('daystoshow').value)
   xhttp.open("GET", "getgames.php?days="+document.getElementById('daystoshow').value+"&search="+searchstr, true);
   xhttp.send();
 }
