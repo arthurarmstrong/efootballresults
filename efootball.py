@@ -30,8 +30,17 @@ def getgames():
 
     days = request.args.get('days')
     searchstr = request.args.get('search')
+    comp = request.args.get('comp')
+    print(comp)
     
-    conn = sqlite3.connect('efootball.db')
+    if comp == '1':
+        dbpath = 'efootball.db'
+    elif comp == '2':
+        dbpath = 'esportsbattle.db'
+    else:
+        return ''
+    
+    conn = sqlite3.connect(dbpath)
     c = conn.cursor()
     
     datefilter ="strftime('%s',DATE) BETWEEN strftime('%s','now','-"+days+" days') AND strftime('%s','now')"
@@ -66,12 +75,12 @@ def getgames():
         table = pd.read_sql_query(query,conn)
         #Build a table of the group games
         responsetext += '<div id="ladder" class="text-center center-block"><h2>Table - Group Games</h2><p>'
-        grouptable = build_table(table[table['STAGE']=='Групповой этап'])
+        grouptable = build_table(table[table['STAGE']=='Group Stage'])
         responsetext += grouptable.to_html() + '<p>'
         #Make a new header for the finals table
         responsetext += '<h2>Table - Finals Games</h2><p><div id="ladder" class="text-center center-block">'
         #Build a table of the finals games
-        finaltable = build_table(table[table['STAGE']!='Групповой этап'])
+        finaltable = build_table(table[table['STAGE']!='Group Stage'])
         responsetext += finaltable.to_html() + '</div><p>'
         
         #Build the table of individual games
