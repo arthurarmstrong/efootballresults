@@ -31,19 +31,6 @@ def getgames():
     days = request.args.get('days')
     searchstr = request.args.get('search')
     comp = request.args.get('comp')
-    print(comp)
-    
-    if comp == '1':
-        dbpath = 'efootball.db'
-    elif comp == '2':
-        dbpath = 'esportsbattle.db'
-    else:
-        return ''
-    
-    conn = sqlite3.connect(dbpath)
-    c = conn.cursor()
-    
-    datefilter ="strftime('%s',DATE) BETWEEN strftime('%s','now','-"+days+" days') AND strftime('%s','now')"
 
     if not searchstr == 'None':
         searchfilter = " AND (HOME || AWAY) LIKE '%"+searchstr+"%'"
@@ -52,7 +39,21 @@ def getgames():
         searchfilter = ''
         labelsuffix = ''
         
-    query = 'SELECT DATE, HOME, AWAY, "HOME SCORE", "AWAY SCORE", STAGE FROM MATCHES WHERE ('+datefilter + searchfilter + ') ORDER BY DATE DESC'
+    
+    
+    if comp == '1':
+        dbpath = 'efootball.db'
+        datefilter = "strftime('%s',DATE) BETWEEN strftime('%s','now','-"+days+" days') AND strftime('%s','now')"
+        query = 'SELECT DATE, HOME, AWAY, "HOME SCORE", "AWAY SCORE", STAGE FROM MATCHES WHERE ('+datefilter + searchfilter + ') ORDER BY DATE DESC'    
+    elif comp == '2':
+        dbpath = 'esportsbattle.db'
+        datefilter = "strftime('%s', DATE) > strftime('%s','now','-"+days+" days')"
+        query = 'SELECT DATE, HOME, AWAY, "HOME SCORE", "AWAY SCORE", STAGE FROM MATCHES WHERE ('+datefilter + searchfilter + ') ORDER BY DATE DESC'
+    else:
+        return ''
+    
+    conn = sqlite3.connect(dbpath)
+    c = conn.cursor()
     
     #Get the selected match data
     c.execute(query)   
@@ -74,14 +75,20 @@ def getgames():
         #Turn the results into a pandas file
         table = pd.read_sql_query(query,conn)
         #Build a table of the group games
+        #try:
         responsetext += '<div id="ladder" class="text-center center-block"><h2>Table - Group Games</h2><p>'
         grouptable = build_table(table[table['STAGE']=='Group Stage'])
         responsetext += grouptable.to_html() + '<p>'
-        #Make a new header for the finals table
-        responsetext += '<h2>Table - Finals Games</h2><p><div id="ladder" class="text-center center-block">'
-        #Build a table of the finals games
-        finaltable = build_table(table[table['STAGE']!='Group Stage'])
-        responsetext += finaltable.to_html() + '</div><p>'
+        #except:
+        #    pass
+        try:
+            #Make a new header for the finals table
+            responsetext += '<h2>Table - Finals Games</h2><p><div id="ladder" class="text-center center-block">'
+            #Build a table of the finals games
+            finaltable = build_table(table[table['STAGE']!='Group Stage'])
+            responsetext += finaltable.to_html() + '</div><p>'
+        except:
+            pass
         
         #Build the table of individual games
         responsetext +='<table class="table table-dark table-bordered table-striped" id="gamestable"><tr><th onclick="sortTable(0)">Date</th><th onclick="sortTable(1)">Home</th><th onclick="sortTable(2)">Away</th><th onclick="sortTable(3)">Home Score</th><th onclick="sortTable(4)">Away Score</th></tr>'
@@ -125,8 +132,8 @@ def build_table(df,season=None):
     for i in df.index:
         this_game = df.loc[i]
         
-        h_s = this_game['HOME SCORE']
-        a_s = this_game['AWAY SCORE']
+        h_s = int(this_game['HOME SCORE'])
+        a_s = int(this_game['AWAY SCORE'])
         if h_s == a_s:
             points = [1,1]
             table.at[this_game['HOME'],'D'] += 1
@@ -141,13 +148,13 @@ def build_table(df,season=None):
             table.at[this_game['AWAY'],'W'] += 1
         
         table.at[this_game['HOME'],'P'] += 1
-        table.at[this_game['HOME'],'F'] += this_game['HOME SCORE']
-        table.at[this_game['HOME'],'A'] += this_game['AWAY SCORE']
+        table.at[this_game['HOME'],'F'] += int(this_game['HOME SCORE'])
+        table.at[this_game['HOME'],'A'] += int(this_game['AWAY SCORE'])
         table.at[this_game['HOME'],'Pts'] += points[0]
         table.at[this_game['HOME'],'+/-'] += h_s-a_s
         table.at[this_game['AWAY'],'P'] += 1
-        table.at[this_game['AWAY'],'F'] += this_game['AWAY SCORE']
-        table.at[this_game['AWAY'],'A'] += this_game['HOME SCORE']
+        table.at[this_game['AWAY'],'F'] += int(this_game['AWAY SCORE'])
+        table.at[this_game['AWAY'],'A'] += int(this_game['HOME SCORE'])
         table.at[this_game['AWAY'],'Pts'] += points[1]
         table.at[this_game['AWAY'],'+/-'] += a_s-h_s
         

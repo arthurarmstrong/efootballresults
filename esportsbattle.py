@@ -1,7 +1,7 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import WebDriverException
-import re
+import re,os
 from bs4 import BeautifulSoup as BS
 import pandas as pd
 import sqlite3, dateparser
@@ -9,12 +9,15 @@ import numpy as np
 import pickle
 import sys,time
 from datetime import datetime
+from consolidate_data import consolidate_data
 sys.setrecursionlimit(200000)
 
 
 def main(browser=None):
     
     conn = connect_to_database('esportsbattle.db')
+    c = conn.cursor()
+    existing_results = opendf('esportsbattle')
     
     #get an instance of chrome going
     if not browser:
@@ -33,36 +36,41 @@ def main(browser=None):
     #input('Please log in and press any button to continue')
     
     #click all the buttons that say 'See More'
-    browser, completed = click_seemore_buttons(browser)
-    
+    browser, click_completed = click_seemore_buttons(browser)
     #save the page in case we want it again later
-    pickle.dump(BS(browser.page_source,'html.parser'),open('page.pkl','wb'))
+    #pickle.dump(BS(browser.page_source,'html.parser'),open('page.pkl','wb'))
     
-    if completed:
+    if click_completed:
     
         #Use Beautiful Soup and Pandas to bring in the info
         df = get_results(browser)
+        df = pd.concat([df,existing_results],ignore_index=True,sort=False)
         
         #Create date timestamps
         df = make_timestamps(df)
         
+        #look for values that should be cansolidated
+        df = consolidate_data(df)
+        df.drop_duplicates(subset=['DATE','HOME','AWAY'],inplace=True,keep='last')
+        
         #Send it to the database
         df.to_sql('MATCHES',conn,if_exists='replace',index=False)
+        df.to_pickle('esportsbattle')
         
         #Close up
         print ('Successfully completed.')
         conn.commit()
         conn.close()
-        return browser, df
+        browser.close()
+        return df
     
     else:
         print ('Did not complete clicking buttons. Browser has been returned so you may attempt to run again')
         conn.close()
-        return browser, _
+        browser.close()
+        return None
     
-    #pickle.dump(browser.get_cookies(),open("../cookies.pkl","wb"))
-
-def click_seemore_buttons(browser,count_limit=100):
+def click_seemore_buttons(browser,count_limit=200):
     
     counter = 0
     
@@ -74,11 +82,13 @@ def click_seemore_buttons(browser,count_limit=100):
                 # again in another pass
                 try:
                     s.click()
-                    counter += 1
                     if counter == count_limit:
                         print('Reached click count limit, returning')
                         return browser,True
-                except: pass
+                except:
+                    pass
+                counter += 1
+                if counter % 10 == 0: print (counter)
 
         #Returns a message along with browser saying that all buttons were clicked
         print('Completed clicking all buttons')
@@ -133,7 +143,9 @@ def get_game_date(article):
     gamedate = re.findall('[0-9]{2}\.[0-9]{2}\.[0-9]{4}',article.text)
     
     if gamedate:
-        return gamedate[0]
+        gamedate = gamedate[0]
+        gamedate = '-'.join(reversed([x for x in gamedate.split('.')]))
+        return gamedate
     else:
         return np.nan
     
@@ -171,7 +183,7 @@ def get_score(r):
         return np.nan,np.nan
 
     homescore, awayscore = [str(x) for x in score.split(':')]
-    return homescore,awayscore
+    return int(homescore),int(awayscore)
 
 def get_teams(r):
     
@@ -179,7 +191,7 @@ def get_teams(r):
     if len(teams) < 2:
         return False
     else:
-        return teams[0:2]
+        return teams[:2]
 
 def openBrowser(mode='Chrome',headless=True):
     
@@ -197,13 +209,26 @@ def make_timestamps(df):
     
     for i in df.index.values:
         date = ' '.join([df.at[i,'GAME_DATE'],df.at[i,'TIME']])
-        df.at[i,'DATE'] = np.int64(time.mktime(datetime.timetuple(datetime.strptime(date,'%d.%m.%Y %H:%M'))))
-        
+        unix_time_stamp = np.int64(time.mktime(datetime.timetuple(datetime.strptime(date,'%Y-%m-%d %H:%M'))))
+        df.at[i,'DATE'] = datetime.fromtimestamp(unix_time_stamp).strftime('%Y-%m-%d %H:%M')
+                
     return df    
     
+def consolidate(df):
+    
+    df.sort_values(by=['ARTICLE_DATE'],axis=0,ascending=True,inplace=True)
+    
+    return df
+
+def opendf(df):
+    if df in os.listdir():
+        return pd.read_pickle(df)
+    else:
+        return pd.DataFrame([])
+
 def connect_to_database(path):
     try:
-        open(path).close()
+        open(path,'w').close()
     except:
         pass
 
@@ -212,4 +237,4 @@ def connect_to_database(path):
     return conn
 
 if __name__ == '__main__':
-    browser,df  = main()
+    df  = main()
