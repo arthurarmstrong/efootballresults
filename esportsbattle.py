@@ -70,7 +70,7 @@ def main(browser=None):
         browser.close()
         return None
     
-def click_seemore_buttons(browser,count_limit=200):
+def click_seemore_buttons(browser,count_limit=70):
     
     counter = 0
     
@@ -130,6 +130,7 @@ def get_results(browser):
                     homescore, awayscore = get_score(r.text)
                     
                     #Turn these returned values into a dictionary and append to the list of games
+                    print(gamedate,gametime,type(gamedate),type(gametime))
                     games.append({'ARTICLE_DATE':article_date,'GAME_DATE':gamedate, 'TIME':gametime, 'HOME':hometeam,'AWAY':awayteam,'HOME SCORE':homescore,'AWAY SCORE':awayscore,'HOME_PLAYING_AS':homeplayingas,'AWAY_PLAYING_AS':awayplayingas,'STAGE':'Group Stage'})
                     
         else:
@@ -216,10 +217,12 @@ def get_cookies(browser):
 def make_timestamps(df):
     
     for i in df.index.values:
-        date = ' '.join([df.at[i,'GAME_DATE'],df.at[i,'TIME']])
-        unix_time_stamp = np.int64(time.mktime(datetime.timetuple(datetime.strptime(date,'%Y-%m-%d %H:%M'))))
-        df.at[i,'DATE'] = datetime.fromtimestamp(unix_time_stamp).strftime('%Y-%m-%d %H:%M')
-        df.at[i,'GAME ID'] = str(df.at[i,'DATE']) + df.at[i,'HOME']+df.at[i,'AWAY'] 
+        if type(df.at[i,'GAME_DATE'])==str and type(df.at[i,'TIME'])==str:
+            print(df.at[i,'GAME_DATE'],df.at[i,'TIME'])
+            date = ' '.join([df.at[i,'GAME_DATE'],df.at[i,'TIME']])
+            unix_time_stamp = np.int64(time.mktime(datetime.timetuple(datetime.strptime(date,'%Y-%m-%d %H:%M'))))
+            df.at[i,'DATE'] = datetime.fromtimestamp(unix_time_stamp).strftime('%Y-%m-%d %H:%M')
+            df.at[i,'GAME ID'] = str(df.at[i,'DATE']) + df.at[i,'HOME']+df.at[i,'AWAY'] 
                 
     return df    
     
