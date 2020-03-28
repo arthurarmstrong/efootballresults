@@ -65,7 +65,7 @@ def main(browser=None):
         return df
     
     else:
-        print ('Did not complete clicking buttons. Browser has been returned so you may attempt to run again')
+        print ('Did not complete clicking buttons.')
         conn.close()
         browser.close()
         return None
@@ -82,7 +82,7 @@ def click_seemore_buttons(browser,count_limit=200):
                 # again in another pass
                 try:
                     s.click()
-                    if counter == count_limit:
+                    if counter >= count_limit:
                         print('Reached click count limit, returning')
                         return browser,True
                 except:
@@ -193,9 +193,17 @@ def get_teams(r):
     else:
         return teams[:2]
 
-def openBrowser(mode='Chrome',headless=True):
+def openBrowser(headless=True):
     
-    browser = webdriver.Chrome(executable_path='C:\\Users\\GerardArmstrong\\Documents\\Python Scripts\\Compiler\\chromedriver.exe')
+    chrome_options = Options()
+    if headless == True:
+        chrome_options.add_argument("--headless")
+        chrome_options.add_argument("--window-size=1920x1080")
+        print('Browser opening in headless mode')
+    
+    #Starts a new instance of Chrome using Selenium webdriver
+    if not 'browser' in locals(): 
+        browser = webdriver.Chrome(chrome_options=chrome_options,executable_path='C:\\Users\\GerardArmstrong\\Documents\\Python Scripts\\Compiler\\chromedriver.exe')
 
     return browser
 
@@ -211,6 +219,7 @@ def make_timestamps(df):
         date = ' '.join([df.at[i,'GAME_DATE'],df.at[i,'TIME']])
         unix_time_stamp = np.int64(time.mktime(datetime.timetuple(datetime.strptime(date,'%Y-%m-%d %H:%M'))))
         df.at[i,'DATE'] = datetime.fromtimestamp(unix_time_stamp).strftime('%Y-%m-%d %H:%M')
+        df.at[i,'GAME ID'] = str(df.at[i,'DATE']) + df.at[i,'HOME']+df.at[i,'AWAY'] 
                 
     return df    
     
