@@ -303,19 +303,6 @@ def get_playing_as(r):
     
     return home, away
                 
-def get_date(article):
-        
-    for a in article.find_all('a',{'href':re.compile('esportsbattle/posts/')}):
-        
-        a = a.text
-        try:
-            article_date = dateparser.parse(a)
-            return article_date
-        except:
-            continue
-
-        print ('No date found')
-        return False
     
 def get_score(match):
     
@@ -397,7 +384,7 @@ def set_status(df):
         if df.at[i,'AWAY USERNAME'] in pros['Username'].values or df.at[i,'AWAY'] in pros['Real Name'].values:
             df.at[i,'AWAY STATUS'] = 'Pro'
         else:
-            df.at[i,'HOME STATUS'] = 'Amateur'
+            df.at[i,'AWAY STATUS'] = 'Amateur'
         
     return df
             
@@ -478,8 +465,38 @@ def build_table(df,season=None):
     return table
 
 if __name__ == '__main__':
+    conn = connect_to_database('virtualbundesliga.db')
+    
+    #get an instance of chrome going
+    if not 'browser' in locals():
+        browser =  openBrowser(headless=False)
+    else:
+        pass
+    
     visitedlist = pickle.load(open('urlmaptogamedate','rb'))
-    #df  = updatevbl(browser)
+    
+    df  = updatevbl(browser)
+    
     df2 = get_home_challenge_matches()
+    
+    df3 = pd.concat([df,df2],ignore_index=True,sort=False)
+    df3.drop_duplicates(subset='GAME ID',inplace=True)
+    df3 = set_status(df3)
+    
+    #format dates for the database to read
+    for i in df3.index.values:
+        try:
+            unix_time_stamp = df3.at[i,'DATE']
+            df3.at[i,'TIMESTAMP'] = unix_time_stamp
+            df3.at[i,'DATE'] = datetime.fromtimestamp(unix_time_stamp)
+        except:
+            pass
+    
+    
+    df3.to_pickle('virtualbundesliga')
+    df3.to_sql('MATCHES',conn)
+    
+    conn.commit()
+    conn.close()
     pickle.dump(visitedlist,open('urlmaptogamedate','wb'))
     

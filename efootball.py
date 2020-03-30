@@ -41,20 +41,21 @@ def getgames():
         
     
     finalsheader= 'Finals Games'
+    datefilter = "strftime('%s', DATE) > strftime('%s','now','-"+days+" days')"
+    query = 'SELECT DATE, HOME, AWAY, "HOME SCORE", "AWAY SCORE", STAGE FROM MATCHES WHERE ('+datefilter + searchfilter + ') ORDER BY DATE DESC'    
     if comp == '1':
         dbpath = 'efootball.db'
         datefilter = "strftime('%s',DATE) BETWEEN strftime('%s','now','-"+days+" days') AND strftime('%s','now')"
     elif comp == '2':
         dbpath = 'esportsbattle.db'
-        datefilter = "strftime('%s', DATE) > strftime('%s','now','-"+days+" days')"
         query = 'SELECT DATE, HOME, AWAY, "HOME SCORE", "AWAY SCORE", STAGE FROM MATCHES WHERE ('+datefilter + searchfilter + ') ORDER BY DATE DESC'
     elif comp =='3':
         dbpath = 'virtualbundesliga.db'
-        datefilter = "strftime('%s', DATE) > strftime('%s','now','-"+days+" days')"
         finalsheader = 'Bundesliga Home Challenge'
+        query = 'SELECT DATE, HOME || " (" || "HOME STATUS" || ")" AS HOME, AWAY || " (" || "AWAY STATUS" || ")" AS AWAY, "HOME SCORE", "AWAY SCORE", STAGE FROM MATCHES WHERE ('+datefilter + searchfilter + ' AND CONSOLE="PS4") ORDER BY DATE DESC'    
     else:
         return ''
-    query = 'SELECT DATE, HOME, AWAY, "HOME SCORE", "AWAY SCORE", STAGE FROM MATCHES WHERE ('+datefilter + searchfilter + ') ORDER BY DATE DESC'    
+    
     
     conn = sqlite3.connect(dbpath)
     c = conn.cursor()
