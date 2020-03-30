@@ -70,7 +70,7 @@ def main(browser=None):
         browser.close()
         return None
     
-def click_seemore_buttons(browser,count_limit=70):
+def click_seemore_buttons(browser,count_limit=200):
     
     counter = 0
     
@@ -130,7 +130,6 @@ def get_results(browser):
                     homescore, awayscore = get_score(r.text)
                     
                     #Turn these returned values into a dictionary and append to the list of games
-                    print(gamedate,gametime,type(gamedate),type(gametime))
                     games.append({'ARTICLE_DATE':article_date,'GAME_DATE':gamedate, 'TIME':gametime, 'HOME':hometeam,'AWAY':awayteam,'HOME SCORE':homescore,'AWAY SCORE':awayscore,'HOME_PLAYING_AS':homeplayingas,'AWAY_PLAYING_AS':awayplayingas,'STAGE':'Group Stage'})
                     
         else:
@@ -189,9 +188,17 @@ def get_score(r):
 def get_teams(r):
     
     teams = re.findall('(?<=\().+?(?=\))',r.text)
+    
     if len(teams) < 2:
         return False
     else:
+        #get rid of anything that suggests a team name was less than 3 characters
+        if len(teams[0]) < 3:
+            print(teams[0])
+            return False
+        if len(teams[1]) < 3:
+            print(teams[1])
+            return False
         return teams[:2]
 
 def openBrowser(headless=True):
@@ -218,7 +225,6 @@ def make_timestamps(df):
     
     for i in df.index.values:
         if type(df.at[i,'GAME_DATE'])==str and type(df.at[i,'TIME'])==str:
-            print(df.at[i,'GAME_DATE'],df.at[i,'TIME'])
             date = ' '.join([df.at[i,'GAME_DATE'],df.at[i,'TIME']])
             unix_time_stamp = np.int64(time.mktime(datetime.timetuple(datetime.strptime(date,'%Y-%m-%d %H:%M'))))
             df.at[i,'DATE'] = datetime.fromtimestamp(unix_time_stamp).strftime('%Y-%m-%d %H:%M')

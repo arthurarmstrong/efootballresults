@@ -40,17 +40,21 @@ def getgames():
         labelsuffix = ''
         
     
-    
+    finalsheader= 'Finals Games'
     if comp == '1':
         dbpath = 'efootball.db'
         datefilter = "strftime('%s',DATE) BETWEEN strftime('%s','now','-"+days+" days') AND strftime('%s','now')"
-        query = 'SELECT DATE, HOME, AWAY, "HOME SCORE", "AWAY SCORE", STAGE FROM MATCHES WHERE ('+datefilter + searchfilter + ') ORDER BY DATE DESC'    
     elif comp == '2':
         dbpath = 'esportsbattle.db'
         datefilter = "strftime('%s', DATE) > strftime('%s','now','-"+days+" days')"
         query = 'SELECT DATE, HOME, AWAY, "HOME SCORE", "AWAY SCORE", STAGE FROM MATCHES WHERE ('+datefilter + searchfilter + ') ORDER BY DATE DESC'
+    elif comp =='3':
+        dbpath = 'virtualbundesliga.db'
+        datefilter = "strftime('%s', DATE) > strftime('%s','now','-"+days+" days')"
+        finalsheader = 'Bundesliga Home Challenge'
     else:
         return ''
+    query = 'SELECT DATE, HOME, AWAY, "HOME SCORE", "AWAY SCORE", STAGE FROM MATCHES WHERE ('+datefilter + searchfilter + ') ORDER BY DATE DESC'    
     
     conn = sqlite3.connect(dbpath)
     c = conn.cursor()
@@ -83,7 +87,7 @@ def getgames():
         #    pass
         try:
             #Make a new header for the finals table
-            responsetext += '<h2>Table - Finals Games</h2><p><div id="ladder" class="text-center center-block">'
+            responsetext += f'<h2>Table - {finalsheader}</h2><p><div id="ladder" class="text-center center-block">'
             #Build a table of the finals games
             finaltable = build_table(table[table['STAGE']!='Group Stage'])
             responsetext += finaltable.to_html() + '</div><p>'
