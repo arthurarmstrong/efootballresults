@@ -70,7 +70,7 @@ def main(browser=None):
         browser.close()
         return None
     
-def click_seemore_buttons(browser,count_limit=500):
+def click_seemore_buttons(browser,count_limit=100):
     
     counter = 0
     
