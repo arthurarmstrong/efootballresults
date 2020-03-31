@@ -14,11 +14,7 @@ sys.setrecursionlimit(200000)
 
 
 def main(browser=None):
-    
-    conn = connect_to_database('esportsbattle.db')
-    c = conn.cursor()
-    existing_results = opendf('esportsbattle')
-    
+       
     #get an instance of chrome going
     if not browser:
         browser =  openBrowser()
@@ -42,6 +38,10 @@ def main(browser=None):
     
     if click_completed:
     
+        conn = connect_to_database('esportsbattle.db')
+        c = conn.cursor()
+        existing_results = opendf('esportsbattle')
+        
         #Use Beautiful Soup and Pandas to bring in the info
         df = get_results(browser)
         df = pd.concat([df,existing_results],ignore_index=True,sort=False)
@@ -52,6 +52,7 @@ def main(browser=None):
         #look for values that should be cansolidated
         df = consolidate_data(df)
         df.drop_duplicates(subset=['DATE','HOME','AWAY'],inplace=True,keep='last')
+        #df.replace('','')
         
         #Send it to the database
         df.to_sql('MATCHES',conn,if_exists='replace',index=False)
@@ -66,8 +67,6 @@ def main(browser=None):
     
     else:
         print ('Did not complete clicking buttons.')
-        conn.close()
-        browser.close()
         return None
     
 def click_seemore_buttons(browser,count_limit=100):
