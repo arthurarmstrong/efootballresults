@@ -52,7 +52,7 @@ def main(browser=None):
         #look for values that should be cansolidated
         df = consolidate_data(df)
         df.drop_duplicates(subset=['DATE','HOME','AWAY'],inplace=True,keep='last')
-        #df.replace('','')
+        df.replace('TAKA','ТАКА')
         
         #Send it to the database
         df.to_sql('MATCHES',conn,if_exists='replace',index=False)
@@ -69,7 +69,7 @@ def main(browser=None):
         print ('Did not complete clicking buttons.')
         return None
     
-def click_seemore_buttons(browser,count_limit=100):
+def click_seemore_buttons(browser,count_limit=500):
     
     counter = 0
     
@@ -81,13 +81,14 @@ def click_seemore_buttons(browser,count_limit=100):
                 # again in another pass
                 try:
                     s.click()
+                    counter += 1
+                    if counter % 10 == 0: print (counter)
                     if counter >= count_limit:
                         print('Reached click count limit, returning')
-                        return browser,True
+                        return browser,True    
                 except:
                     pass
-                counter += 1
-                if counter % 10 == 0: print (counter)
+                
 
         #Returns a message along with browser saying that all buttons were clicked
         print('Completed clicking all buttons')
@@ -187,6 +188,7 @@ def get_score(r):
 def get_teams(r):
     
     teams = re.findall('(?<=\().+?(?=\))',r.text)
+    teams = [bytes(x,encoding='utf8').decode() for x in teams]
     
     if len(teams) < 2:
         return False
