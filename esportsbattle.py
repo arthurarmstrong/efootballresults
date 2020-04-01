@@ -39,7 +39,6 @@ def main(browser=None):
     if click_completed:
     
         conn = connect_to_database('esportsbattle.db')
-        c = conn.cursor()
         existing_results = opendf('esportsbattle')
         
         #Use Beautiful Soup and Pandas to bring in the info
@@ -52,7 +51,6 @@ def main(browser=None):
         #look for values that should be cansolidated
         df = consolidate_data(df)
         df.drop_duplicates(subset=['DATE','HOME','AWAY'],inplace=True,keep='last')
-        df.replace('TAKA','ТАКА')
         
         #Send it to the database
         df.to_sql('MATCHES',conn,if_exists='replace',index=False)
@@ -105,6 +103,10 @@ def get_results(browser):
     
     page  = BS(browser.page_source,'html.parser')
     
+    #get rid of any translated elements, which seem to be housed in blockquotes
+    for translation in page.find_all('blockquote'):
+        translation.decompose()
+    
     for article in page.find_all('div',{'role':'article'}):
         article_date = get_date(article)
         
@@ -122,6 +124,7 @@ def get_results(browser):
                         print('Problem getting team names')
                         continue
                     hometeam,awayteam = teams
+                    if 'such' in hometeam or 'such' in awayteam: print(r.text)
                     homeplayingas,awayplayingas = get_playing_as(r)
                     
                     #If there was an error parsing names, skip
@@ -188,7 +191,6 @@ def get_score(r):
 def get_teams(r):
     
     teams = re.findall('(?<=\().+?(?=\))',r.text)
-    teams = [bytes(x,encoding='utf8').decode() for x in teams]
     
     if len(teams) < 2:
         return False
