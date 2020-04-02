@@ -42,17 +42,28 @@ def getgames():
     
     finalsheader= 'Finals Games'
     datefilter = "strftime('%s', DATE) > strftime('%s','now','-"+days+" days')"
-    query = 'SELECT DATE, HOME, AWAY, "HOME SCORE", "AWAY SCORE", STAGE FROM MATCHES WHERE ('+datefilter + searchfilter + ') ORDER BY DATE DESC'    
+    #datefilter = "strftime('%s', DATE) BETWEEN strftime('%s','now','-"+days+" days') AND strftime('%s','now')"
+    query = """SELECT DATE, HOME, AWAY,
+            CAST("HOME SCORE" AS INTEGER) AS "HOME SCORE",
+            CAST("AWAY SCORE" AS INTEGER) AS "AWAY SCORE", 
+            STAGE,
+            CAST(strftime("%s",DATE) AS INTEGER) AS TIMESTAMP
+            FROM MATCHES
+            WHERE ("""+datefilter + searchfilter + """)
+            ORDER BY DATE DESC"""
+            
     if comp == '1':
         dbpath = 'efootball.db'
         #datefilter = "strftime('%s',DATE) BETWEEN strftime('%s','now','-"+days+" days') AND strftime('%s','now')"
     elif comp == '2':
         dbpath = 'esportsbattle.db'
-        query = 'SELECT DATE, HOME, AWAY, "HOME SCORE", "AWAY SCORE", STAGE FROM MATCHES WHERE ('+datefilter + searchfilter + ') ORDER BY DATE DESC'
+        #query = 'SELECT DATE, HOME, AWAY, "HOME SCORE", "AWAY SCORE", STAGE FROM MATCHES WHERE ('+datefilter + searchfilter + ') ORDER BY DATE DESC'
     elif comp =='3':
         dbpath = 'virtualbundesliga.db'
         finalsheader = 'Bundesliga Home Challenge'
-        query = 'SELECT DATE, HOME || " (" || "HOME STATUS" || ")" AS HOME, AWAY || " (" || "AWAY STATUS" || ")" AS AWAY, "HOME SCORE", "AWAY SCORE", STAGE FROM MATCHES WHERE ('+datefilter + searchfilter + ' AND CONSOLE="PS4") ORDER BY DATE DESC'    
+        #query = 'SELECT DATE, HOME || " (" || "HOME STATUS" || ")" AS HOME, AWAY || " (" || "AWAY STATUS" || ")" AS AWAY, "HOME SCORE", "AWAY SCORE", STAGE FROM MATCHES WHERE ('+datefilter + searchfilter + ' AND CONSOLE="PS4") ORDER BY DATE DESC'    
+        query = query.replace(', HOME,',""", HOME || " (" || "HOME STATUS" || ")" AS HOME,""")
+        query = query.replace(', AWAY,',""", AWAY || " (" || "AWAY STATUS" || ")" AS AWAY,""")
     else:
         return ''
     
@@ -65,17 +76,19 @@ def getgames():
     resp = c.fetchall()
     
     #Get the over under data
-    c.execute('SELECT DATE, "HOME SCORE", "AWAY SCORE" FROM MATCHES WHERE ('+datefilter + searchfilter +'AND "HOME SCORE" + "AWAY SCORE" > 2'+ ')')
-    totalresp = c.fetchall()
+    gamestonow = [x for x in resp if x[-1] < time.time()]
+    totalover = sum([1 for x in gamestonow if x[3] + x[4] > 2])
+
     #Get total stats
-    gamecount = len(resp)
-    overperc = len(totalresp)/gamecount
+    gamecount = len(gamestonow)
+    overperc = round(totalover*100/gamecount,1)
+    underperc = 100-overperc
         
     responsetext = ''
     
     if resp:
 
-        responsetext += '<div id="overunder" class="text-center"><table class="table table-bordered table-striped"><th colspan="2">Overall Stats'+labelsuffix+'</th><tr><td>Games</td><td>'+str(len(resp))+'</td></tr><tr><td>Over</td><td>'+str(len(totalresp))+' ('+str(round(overperc*100,1))+'%)</td></tr><tr><td>Under</td><td>'+str(len(resp)-len(totalresp))+' ('+str(round(100*(1-overperc),1))+'%)</td></tr></table></div><p>'
+        responsetext += '<div id="overunder" class="text-center"><table class="table table-bordered table-striped"><th colspan="2">Overall Stats'+labelsuffix+'</th><tr><td>Games</td><td>'+str(gamecount)+'</td></tr><tr><td>Over</td><td>'+str(totalover)+' ('+str(overperc)+'%)</td></tr><tr><td>Under</td><td>'+str(gamecount-totalover)+' ('+str(underperc)+'%)</td></tr></table></div><p>'
         
         #Turn the results into a pandas file
         table = pd.read_sql_query(query,conn)

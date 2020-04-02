@@ -167,7 +167,7 @@ def updatevbl(browser=None):
             df.drop_duplicates(subset=['GAME ID'],inplace=True)
             df.to_pickle('virtualbundesliga')
                 
-    return teams, players
+    return df
 
 def get_home_challenge_matches():
     
@@ -377,14 +377,31 @@ def connect_to_database(path):
 def set_status(df):
     pros = opendf('pros')
     for i in df.index.values:
-        if df.at[i,'HOME USERNAME'] in pros['Username'].values or df.at[i,'HOME'] in pros['Real Name'].values:
-            df.at[i,'HOME STATUS'] = 'Pro'
-        else:
-            df.at[i,'HOME STATUS'] = 'Amateur'
-        if df.at[i,'AWAY USERNAME'] in pros['Username'].values or df.at[i,'AWAY'] in pros['Real Name'].values:
-            df.at[i,'AWAY STATUS'] = 'Pro'
-        else:
-            df.at[i,'AWAY STATUS'] = 'Amateur'
+        
+        status = 'Amateur'
+        for p in pros['Username'].values:
+            if 'HOME USERNAME' in df.loc[i].keys():
+                if p in df.at[i,'HOME USERNAME']:
+                    status = 'Pro'
+                    break
+        df.at[i,'HOME STATUS'] = status
+            
+        status = 'Amateur'
+        for p in pros['Username'].values:
+            if 'AWAY USERNAME' in df.loc[i].keys():
+                if p in df.at[i,'AWAY USERNAME']:
+                    status = 'Pro'
+                    break
+        df.at[i,'AWAY STATUS'] = status
+        
+        #if df.at[i,'HOME USERNAME'] in pros['Username'].values or df.at[i,'HOME'] in pros['Real Name'].values:
+            #df.at[i,'HOME STATUS'] = 'Pro'
+        #else:
+        #    df.at[i,'HOME STATUS'] = 'Amateur'
+        #if df.at[i,'AWAY USERNAME'] in pros['Username'].values or df.at[i,'AWAY'] in pros['Real Name'].values:
+        #    df.at[i,'AWAY STATUS'] = 'Pro'
+        #else:
+        #    df.at[i,'AWAY STATUS'] = 'Amateur'
         
     return df
             
@@ -467,17 +484,19 @@ def build_table(df,season=None):
 if __name__ == '__main__':
     conn = connect_to_database('virtualbundesliga.db')
     
+    df = df2 = pd.DataFrame()
+    
     #get an instance of chrome going
-    if not 'browser' in locals():
-        browser =  openBrowser(headless=False)
-    else:
-        pass
+    browser =  openBrowser(headless=False)
+
     
     visitedlist = pickle.load(open('urlmaptogamedate','rb'))
     
     df  = updatevbl(browser)
-    
-    df2 = get_home_challenge_matches()
+    try:
+        df2 = get_home_challenge_matches()
+    except:
+        print("Didn't get home challenge")
     
     df3 = pd.concat([df,df2],ignore_index=True,sort=False)
     df3.drop_duplicates(subset='GAME ID',inplace=True)
