@@ -38,18 +38,17 @@ def getgames():
     else:
         searchfilter = ''
         labelsuffix = ''
-        
     
     finalsheader= 'Finals Games'
-    datefilter = "strftime('%s', DATE) > strftime('%s','now','-"+days+" days')"
+    datefilter = "strftime('%s',DATE) > strftime('%s','now','-"+days+" days')"
     #datefilter = "strftime('%s', DATE) BETWEEN strftime('%s','now','-"+days+" days') AND strftime('%s','now')"
-    query = """SELECT DATE, HOME, AWAY,
+    query = """SELECT DATE, HOME, AWAY, 
             CAST("HOME SCORE" AS INTEGER) AS "HOME SCORE",
             CAST("AWAY SCORE" AS INTEGER) AS "AWAY SCORE", 
             STAGE,
             CAST(strftime("%s",DATE) AS INTEGER) AS TIMESTAMP
             FROM MATCHES
-            WHERE ("""+datefilter + searchfilter + """)
+            WHERE ("""+datefilter + searchfilter + """ AND HOME NOT LIKE "%,%")
             ORDER BY DATE DESC"""
             
     if comp == '1':
@@ -62,28 +61,32 @@ def getgames():
         dbpath = 'virtualbundesliga.db'
         finalsheader = 'Bundesliga Home Challenge'
         #query = 'SELECT DATE, HOME || " (" || "HOME STATUS" || ")" AS HOME, AWAY || " (" || "AWAY STATUS" || ")" AS AWAY, "HOME SCORE", "AWAY SCORE", STAGE FROM MATCHES WHERE ('+datefilter + searchfilter + ' AND CONSOLE="PS4") ORDER BY DATE DESC'    
-        query = query.replace(', HOME,',""", HOME || " (" || "HOME STATUS" || ")" AS HOME,""")
-        query = query.replace(', AWAY,',""", AWAY || " (" || "AWAY STATUS" || ")" AS AWAY,""")
+        query = query.replace('AS TIMESTAMP', 'AS TIMESTAMP, "HOME STATUS", "AWAY STATUS"')
+        #query = query.replace('AND HOME NOT LIKE "%,%"','AND HOME NOT LIKE "%,%" AND CONSOLE="PS4"')
     else:
         return ''
     
-    
     conn = sqlite3.connect(dbpath)
     c = conn.cursor()
-    
     #Get the selected match data
     c.execute(query)   
     resp = c.fetchall()
-    
+
     #Get the over under data
-    gamestonow = [x for x in resp if x[-1] < time.time()]
-    totalover = sum([1 for x in gamestonow if x[3] + x[4] > 2])
+    gamestonow = [x for x in resp if x[6] < time.time()]
+    totalover = 0
+    gamecount = 0
+    for g in gamestonow:
+        if type(g[3])==int:
+            if g[3]+g[4] > 2:
+                totalover += 1
+            gamecount += 1
 
     #Get total stats
     gamecount = len(gamestonow)
     overperc = round(totalover*100/gamecount,1)
     underperc = 100-overperc
-        
+
     responsetext = ''
     
     if resp:
@@ -114,7 +117,7 @@ def getgames():
         for r in resp:
             #Round scores
             if not r[3] == None:
-                r = (r[0],r[1],r[2],int(r[3]),int(r[4]))
+                r = (r[0],r[1],r[2],r[3],r[4])
             else:
                 r = (r[0],r[1],r[2],'-','-')
             #Add row

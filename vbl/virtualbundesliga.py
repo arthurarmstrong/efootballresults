@@ -46,7 +46,7 @@ class Player:
         
 class Match:
     
-    def __init__(self,home,away,homescore,awayscore,homeplayingas,awayplayingas,href=None,console=None,date=None):
+    def __init__(self,home,away,homescore,awayscore,homeplayingas,awayplayingas,href=None,console=None,date=None,stage='Group Stage'):
         self.home = home
         self.away = away
         self.homescore = homescore
@@ -56,6 +56,7 @@ class Match:
         self.console = console
         self.datestr = date
         self.href = href
+        self.stage = stage
         
         if self.datestr:
             self.make_timestamp()
@@ -87,7 +88,7 @@ class Match:
         
     def to_df(self):
         df = {'DATE':[self.time_stamp],'HOME':[self.home],'AWAY':[self.away],'HOME PLAYING AS':[self.homeplayingas],
-              'AWAY PLAYING AS':[self.awayplayingas],'HOME SCORE':[self.homescore],'AWAY SCORE':[self.awayscore],'CONSOLE':[self.console],'GAME ID':[str(self.time_stamp)+self.home+self.away]}
+              'AWAY PLAYING AS':[self.awayplayingas],'HOME SCORE':[self.homescore],'AWAY SCORE':[self.awayscore],'CONSOLE':[self.console],'GAME ID':[str(self.time_stamp)+self.home+self.away],'STAGE':self.stage}
         df = pd.DataFrame(data=df)
         
         return df
@@ -169,9 +170,9 @@ def updatevbl(browser=None):
                 
     return df
 
-def get_home_challenge_matches():
+def get_home_challenge_matches(url='https://virtual.bundesliga.com/en/bundesliga-home-challenge'):
     
-    browser.get('https://virtual.bundesliga.com/en/bundesliga-home-challenge')
+    browser.get(url)
     existing_matches = opendf('virtualbundesliga')
     
     matches = []
@@ -381,17 +382,21 @@ def set_status(df):
         status = 'Amateur'
         for p in pros['Username'].values:
             if 'HOME USERNAME' in df.loc[i].keys():
-                if p in df.at[i,'HOME USERNAME']:
-                    status = 'Pro'
-                    break
+                try:
+                    if p in df.at[i,'HOME USERNAME']:
+                        status = 'Pro'
+                        break
+                except: pass
         df.at[i,'HOME STATUS'] = status
             
         status = 'Amateur'
         for p in pros['Username'].values:
             if 'AWAY USERNAME' in df.loc[i].keys():
-                if p in df.at[i,'AWAY USERNAME']:
-                    status = 'Pro'
-                    break
+                try:
+                    if p in df.at[i,'AWAY USERNAME']:
+                        status = 'Pro'
+                        break
+                except: pass
         df.at[i,'AWAY STATUS'] = status
         
         #if df.at[i,'HOME USERNAME'] in pros['Username'].values or df.at[i,'HOME'] in pros['Real Name'].values:
@@ -409,23 +414,54 @@ def usernames_to_names(df):
     
     pros = opendf('pros')
     
+    pro_usernames = pros['Username'].values
+    pro_realnames = pros['Real Name'].values
+    
+    #for each row in dataframe
     for i in df.index.values:
+        
         thisuname = df.loc[i,'HOME']
-        if thisuname in pros['Username'].values:
-            #get a df slice with the username and name
-            pro = pros[pros['Username']==thisuname]
-            for j in pro.index:
-                real_name = pro.at[j,'Real Name']
-                df.at[i,'HOME'] = real_name
-                df.at[i,'HOME USERNAME'] = thisuname
+        
+        #get a list of all players, could be one or two
+        homeplayers = [x.strip() for x in thisuname.split(',')]
+        #iterate over all players
+        for player in homeplayers:            
+            
+            #if the name is found in the file of pro players usernames, it needs converting to their real name
+            if player in pro_usernames:
+                #get a df slice with the username and name
+                pro = pros[pros['Username']==player]
+                #the pro is a DF series so we need to iterate over each match
+                for j in pro.index:
+                    #get the real name
+                    real_name = pro.at[j,'Real Name']
+                    #replace the username with the real name
+                    df.at[i,'HOME'] = df.at[i,'HOME'].replace(player,real_name)
+                    #move username to the home username column
+                    df.at[i,'HOME USERNAME'] = thisuname
+                    
+            if player in pro_realnames:
+                index = pros[pros['Real Name']==player].index.values[0]
+                df.at[i,'HOME USERNAME'] = thisuname.replace(player,pros.at[index,'Username'])
+
+        
+        #do the same for away column                    
         thisuname = df.loc[i,'AWAY']
-        if thisuname in pros['Username'].values:
-            #get a df slice with the username and name
-            pro = pros[pros['Username']==thisuname]
-            for j in pro.index:
-                real_name = pro.at[j,'Real Name']
-                df.at[i,'AWAY'] = real_name
-                df.at[i,'AWAY USERNAME'] = thisuname
+        awayplayers = [x.strip() for x in thisuname.split(',')]
+        for player in awayplayers:            
+
+            if player in pros['Username'].values:
+                #get a df slice with the username and name
+                pro = pros[pros['Username']==player]
+                for j in pro.index:
+                    real_name = pro.at[j,'Real Name']
+                    df.at[i,'AWAY'] = df.at[i,'AWAY'].replace(player,real_name)
+                    df.at[i,'AWAY USERNAME'] = thisuname
+
+            if player in pro_realnames:
+                index = pros[pros['Real Name']==player].index.values[0]
+                df.at[i,'AWAY USERNAME'] = thisuname.replace(player,pros.at[index,'Username'])
+
     return df
 
 def build_table(df,season=None):
@@ -482,8 +518,7 @@ def build_table(df,season=None):
     return table
 
 if __name__ == '__main__':
-    conn = connect_to_database('virtualbundesliga.db')
-    
+        
     df = df2 = pd.DataFrame()
     
     #get an instance of chrome going
@@ -492,7 +527,7 @@ if __name__ == '__main__':
     
     visitedlist = pickle.load(open('urlmaptogamedate','rb'))
     
-    df  = updatevbl(browser)
+    #df  = updatevbl(browser)
     try:
         df2 = get_home_challenge_matches()
     except:
@@ -500,6 +535,7 @@ if __name__ == '__main__':
     
     df3 = pd.concat([df,df2],ignore_index=True,sort=False)
     df3.drop_duplicates(subset='GAME ID',inplace=True)
+    df = usernames_to_names(df)
     df3 = set_status(df3)
     
     #format dates for the database to read
@@ -511,9 +547,10 @@ if __name__ == '__main__':
         except:
             pass
     
+    conn = connect_to_database('virtualbundesliga.db')
     
     df3.to_pickle('virtualbundesliga')
-    df3.to_sql('MATCHES',conn)
+    df3.to_sql('MATCHES',conn,index=False)
     
     conn.commit()
     conn.close()
