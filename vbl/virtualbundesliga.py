@@ -207,7 +207,7 @@ def get_home_challenge_matches(url='https://virtual.bundesliga.com/en/bundesliga
                     homescore = awayscore = np.nan
                 console = "PS4"
                 
-                matches.append(Match(hometeam,awayteam,homescore,awayscore,homeplayingas,awayplayingas,None,console,matchdate+' '+matchtime))
+                matches.append(Match(hometeam,awayteam,homescore,awayscore,homeplayingas,awayplayingas,None,console,matchdate+' '+matchtime),stage='Bundesliga Home Challenge')
     
     for m in matches:
         new_match = m.to_df()
