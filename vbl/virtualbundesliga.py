@@ -207,7 +207,7 @@ def get_home_challenge_matches(url='https://virtual.bundesliga.com/en/bundesliga
                     homescore = awayscore = np.nan
                 console = "PS4"
                 
-                matches.append(Match(hometeam,awayteam,homescore,awayscore,homeplayingas,awayplayingas,None,console,matchdate+' '+matchtime),stage='Bundesliga Home Challenge')
+                matches.append(Match(hometeam,awayteam,homescore,awayscore,homeplayingas,awayplayingas,None,console,matchdate+' '+matchtime,stage='Bundesliga Home Challenge'))
     
     for m in matches:
         new_match = m.to_df()
@@ -528,10 +528,10 @@ if __name__ == '__main__':
     visitedlist = pickle.load(open('urlmaptogamedate','rb'))
     
     #df  = updatevbl(browser)
-    try:
-        df2 = get_home_challenge_matches()
-    except:
-        print("Didn't get home challenge")
+    #try:
+    df2 = get_home_challenge_matches()
+    #except:
+    #    print("Didn't get home challenge")
     
     df3 = pd.concat([df,df2],ignore_index=True,sort=False)
     df3.drop_duplicates(subset='GAME ID',inplace=True)
