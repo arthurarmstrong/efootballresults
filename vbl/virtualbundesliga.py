@@ -472,7 +472,7 @@ def build_table(df,season=None):
             unique_players.add(player)
     
     #Remove duplicates
-    df.drop_duplicates(subset=['DATE','HOME','AWAY'],inplace=True,keep='last')
+    df.drop_duplicates(subset=['DATE','HOME','AWAY','HOME SCORE','AWAY SCORE'],inplace=True,keep='last')
     df.dropna(subset=['HOME SCORE','AWAY SCORE'],inplace=True)
     #Build zero vector to populate table with initially
     zero_column = np.zeros(len(players),dtype=int)
