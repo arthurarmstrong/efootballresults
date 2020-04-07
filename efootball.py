@@ -52,17 +52,21 @@ def getgames():
             ORDER BY DATE DESC"""
             
     if comp == '1':
-        dbpath = 'efootball.db'
+        dbpath = './eFootball/efootball.db'
         #datefilter = "strftime('%s',DATE) BETWEEN strftime('%s','now','-"+days+" days') AND strftime('%s','now')"
     elif comp == '2':
-        dbpath = 'esportsbattle.db'
+        dbpath = './eSportsBattle/esportsbattle.db'
         #query = 'SELECT DATE, HOME, AWAY, "HOME SCORE", "AWAY SCORE", STAGE FROM MATCHES WHERE ('+datefilter + searchfilter + ') ORDER BY DATE DESC'
     elif comp =='3':
-        dbpath = 'virtualbundesliga.db'
+        dbpath = './vbl/virtualbundesliga.db'
         finalsheader = 'Bundesliga Home Challenge'
         #query = 'SELECT DATE, HOME || " (" || "HOME STATUS" || ")" AS HOME, AWAY || " (" || "AWAY STATUS" || ")" AS AWAY, "HOME SCORE", "AWAY SCORE", STAGE FROM MATCHES WHERE ('+datefilter + searchfilter + ' AND CONSOLE="PS4") ORDER BY DATE DESC'    
         query = query.replace('AS TIMESTAMP', 'AS TIMESTAMP, "HOME STATUS", "AWAY STATUS"')
         #query = query.replace('AND HOME NOT LIKE "%,%"','AND HOME NOT LIKE "%,%" AND CONSOLE="PS4"')
+    elif comp =='4':
+        dbpath = './FUFV/Primera Division FUFV.db'
+    elif comp =='5':
+        dbpath = './FUFV/Segunda Division FUFV.db'
     else:
         return ''
     

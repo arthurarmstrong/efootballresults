@@ -38,8 +38,8 @@ def main(browser=None):
     
     if click_completed:
     
-        conn = connect_to_database('esportsbattle.db')
-        existing_results = opendf('esportsbattle')
+        conn = connect_to_database('eSportsBattle/esportsbattle.db')
+        existing_results = opendf('eSportsBattle/esportsbattle')
         
         #Use Beautiful Soup and Pandas to bring in the info
         df = get_results(browser)
@@ -54,7 +54,7 @@ def main(browser=None):
         
         #Send it to the database
         df.to_sql('MATCHES',conn,if_exists='replace',index=False)
-        df.to_pickle('esportsbattle')
+        df.to_pickle('eSportsBattle/esportsbattle')
         
         #Close up
         print ('Successfully completed.')
