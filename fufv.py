@@ -119,4 +119,4 @@ def opendf(df):
     
 if __name__ == '__main__':
     main(tourn_id=322)
-    #main(tourn_id=323)
+    main(tourn_id=323)
