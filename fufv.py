@@ -6,7 +6,6 @@ from bs4 import BeautifulSoup as BS
 import pandas as pd
 import sqlite3, dateparser
 import numpy as np
-import pickle
 import sys,time
 from datetime import datetime
 from consolidate_data import consolidate_data
@@ -82,7 +81,7 @@ def main(tourn_id):
         
     
     existing_games.drop_duplicates(subset=['GAME ID'],inplace=True,keep='last')
-    
+    existing_games = consolidate_data(existing_games)
     
     conn = connect_to_database(f'FUFV/{comp}.db')
     existing_games.to_pickle(f'FUFV/{comp}')
