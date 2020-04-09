@@ -529,7 +529,7 @@ if __name__ == '__main__':
     
     #df  = updatevbl(browser)
     #try:
-    #df2 = get_home_challenge_matches()
+    df2 = get_home_challenge_matches()
     df4 = get_home_challenge_matches('https://virtual.bundesliga.com/de/bundesliga-home-challenge/spieltag/2')
     #except:
     #    print("Didn't get home challenge")
