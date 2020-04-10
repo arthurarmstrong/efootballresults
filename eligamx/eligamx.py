@@ -45,7 +45,7 @@ def main():
                    
             try:
                 datestr = row.find('span',{'class':'date'}).text+'/2020 '+row.find('span',{'class':'hour'}).text
-                print(datestr)
+                datestr = datestr.replace('hr','').strip()
                 datetimetuple = dateparser.parse(datestr,settings={'DATE_ORDER': 'DMY'}).utctimetuple()
                 time_stamp = np.int64(time.mktime(datetimetuple))
                 #correct for timezone
