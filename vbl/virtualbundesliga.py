@@ -527,16 +527,18 @@ if __name__ == '__main__':
     
     visitedlist = pickle.load(open('urlmaptogamedate','rb'))
     
-    #df  = updatevbl(browser)
+    df  = updatevbl(browser)
     #try:
-    df2 = get_home_challenge_matches()
-    df4 = get_home_challenge_matches('https://virtual.bundesliga.com/de/bundesliga-home-challenge/spieltag/2')
+    home_chal = get_home_challenge_matches()
+    for wk in range(1,3):
+        home_chal_wk = get_home_challenge_matches(f'https://virtual.bundesliga.com/de/bundesliga-home-challenge/spieltag/{wk}')
+        home_chal = pd.concat([home_chal,home_chal_wk],ignore_index=True,sort=False)
     #except:
     #    print("Didn't get home challenge")
     
-    df3 = pd.concat([df,df2,df4],ignore_index=True,sort=False)
+    df3 = pd.concat([df,home_chal],ignore_index=True,sort=False)
     df3.drop_duplicates(subset='GAME ID',inplace=True,keep='last')
-    df3 = usernames_to_names(df)
+    df3 = usernames_to_names(df3)
     df3 = set_status(df3)
     
     #format dates for the database to read
