@@ -536,7 +536,7 @@ if __name__ == '__main__':
     
     df3 = pd.concat([df,df2,df4],ignore_index=True,sort=False)
     df3.drop_duplicates(subset='GAME ID',inplace=True,keep='last')
-    df = usernames_to_names(df)
+    df3 = usernames_to_names(df)
     df3 = set_status(df3)
     
     #format dates for the database to read
