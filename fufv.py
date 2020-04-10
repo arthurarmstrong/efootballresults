@@ -52,7 +52,6 @@ def main(tourn_id):
     
         try:
             homescore,awayscore = [int(x) for x in re.findall('[0-9]+',row.find_all('td')[4].text)[:2]]
-            print(homescore,awayscore)
         except:
             homescore = awayscore = np.nan
         
@@ -119,3 +118,4 @@ def opendf(df):
 if __name__ == '__main__':
     main(tourn_id=322)
     main(tourn_id=323)
+    main(tourn_id=324)

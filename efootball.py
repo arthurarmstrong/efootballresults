@@ -67,6 +67,10 @@ def getgames():
         dbpath = './FUFV/Primera Division FUFV.db'
     elif comp =='5':
         dbpath = './FUFV/Segunda Division FUFV.db'
+    elif comp =='6':
+        dbpath = './FUFV/Tercera Division FUFV.db'
+    elif comp =='7':
+        dbpath = './eligamx/eligamx-Torneo de eLiga MX.db'
     else:
         return ''
     
