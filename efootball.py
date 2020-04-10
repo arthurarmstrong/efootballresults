@@ -92,7 +92,10 @@ def getgames():
 
     #Get total stats
     gamecount = len(gamestonow)
-    overperc = round(totalover*100/gamecount,1)
+    if gamecount == 0:
+        overperc = np.nan
+    else:
+        overperc = round(totalover*100/gamecount,1)
     underperc = 100-overperc
 
     responsetext = ''
