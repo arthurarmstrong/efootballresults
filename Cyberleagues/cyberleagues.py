@@ -1,10 +1,30 @@
 import pandas as pd
-import re,dateparser,time,sqlite3
+import re,dateparser,time,sqlite3,os
 import numpy as np
 from datetime import datetime
 from consolidate_data import consolidate_data
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 
 def main():
+    
+    #Delete the old sheet
+    if 'Results .xlsx' in os.listdir():
+        os.remove('Results .xlsx')
+    
+    #Download the new sheet
+    browser = openBrowser(headless=False)
+    browser.get('https://docs.google.com/spreadsheets/d/1DzPBoZzRx1JraO48IaiRsTCML75XXLFMj0ZItfaI8-A/edit#gid=473368820')
+    browser.find_element_by_id('docs-file-menu').click()
+    time.sleep(2)
+    [x for x in browser.find_elements_by_tag_name('span') if '다운로드' in x.text][0].click()
+    time.sleep(2)
+    [x for x in browser.find_elements_by_tag_name('span') if 'xlsx' in x.text][0].click()
+    
+    #Wait until sheet downloaded
+    while not 'Results .xlsx' in os.listdir():
+        time.sleep(5)
+    browser.close()
     
     Excel = pd.ExcelFile(r'Results .xlsx')
 
@@ -17,9 +37,6 @@ def main():
         for i in df.index.values:
             
             row = df.loc[i]
-            
-            is_fixture = False
-            is_competition_header = False   
             
             #Set the current competition if necessary
             try:
@@ -40,8 +57,7 @@ def main():
                 #if np.isnan(row[4]): continue
         
             try:
-                if 'channel' in row[4]:
-                    is_fixture = True            
+                if 'channel' in row[4]:         
                     
                     hometeam = re.findall('\(.*\)',row[1])[0].strip('()')
                     awayteam = re.findall('\(.*\)',row[3])[0].strip('()')
@@ -90,7 +106,7 @@ def main():
     conn.close()                    
     
     #Group by competitions for saving separately
-    for comp in df.groupby('COMPETITION'):
+    for comp in master.groupby('COMPETITION'):
         d = pd.DataFrame(comp[1])
         d.to_pickle(comp[0])
         conn = connect_to_database(comp[0])
@@ -107,6 +123,22 @@ def connect_to_database(path):
     conn = sqlite3.connect(path)
     
     return conn
+
+def openBrowser(headless=True):
+    prefs = {"download.default_directory" : r"C:\Users\GerardArmstrong\Documents\GitHub\efootballresults\Cyberleagues"}
+    chrome_options = Options()
+    chrome_options.add_experimental_option("prefs",prefs)
+    if headless == True:
+        chrome_options.add_argument("--headless")
+        chrome_options.add_argument("--window-size=1920x1080")
+        print('Browser opening in headless mode')
+    
+    #Starts a new instance of Chrome using Selenium webdriver
+    if not 'browser' in locals(): 
+        browser = webdriver.Chrome(chrome_options=chrome_options,executable_path='C:\\Users\\GerardArmstrong\\Documents\\Python Scripts\\Compiler\\chromedriver.exe')
+
+    return browser
+
 
 if __name__ == '__main__':
     main()

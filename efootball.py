@@ -73,24 +73,24 @@ def getgames():
         dbpath = './eligamx/eligamx-Torneo de eLiga MX.db'
     elif comp =='8':
         dbpath = './Cyberleagues/master.db'
-    elif comp =='9':
-        dbpath = './Cyberleagues/Cyber Champions League.db'
-    elif comp =='10':
-        dbpath = './Cyberleagues/Cyber Copa America.db'
-    elif comp =='11':
-        dbpath = './Cyberleagues/Cyber Europa League.db'
-    elif comp =='12':
-        dbpath = './Cyberleagues/Cyber World Cup.db'
-    elif comp =='13':
-        dbpath = './Cyberleagues/England Cyber Stars League.db'
-    elif comp =='14':
-        dbpath = './Cyberleagues/France Cyber Stars League.db'
-    elif comp =='15':
-        dbpath = './Cyberleagues/Germany Cyber Stars League.db'
-    elif comp =='16':
-        dbpath = './Cyberleagues/Italy Cyber Stars League.db'
-    elif comp =='17':
-        dbpath = './Cyberleagues/Spain Cyber Stars League.db'
+    #elif comp =='9':
+    #    dbpath = './Cyberleagues/Cyber Champions League.db'
+    #elif comp =='10':
+    #    dbpath = './Cyberleagues/Cyber Copa America.db'
+    #elif comp =='11':
+    #    dbpath = './Cyberleagues/Cyber Europa League.db'
+    #elif comp =='12':
+    #    dbpath = './Cyberleagues/Cyber World Cup.db'
+    #elif comp =='13':
+    #    dbpath = './Cyberleagues/England Cyber Stars League.db'
+    #elif comp =='14':
+    #    dbpath = './Cyberleagues/France Cyber Stars League.db'
+    #elif comp =='15':
+    #    dbpath = './Cyberleagues/Germany Cyber Stars League.db'
+    #elif comp =='16':
+    #    dbpath = './Cyberleagues/Italy Cyber Stars League.db'
+    #elif comp =='17':
+    #    dbpath = './Cyberleagues/Spain Cyber Stars League.db'
     else:
         return ''
     
@@ -104,11 +104,15 @@ def getgames():
     gamestonow = [x for x in resp if x[6] < time.time()]
     totalover = 0
     gamecount = 0
+    drawcount = 1
     for g in gamestonow:
         if type(g[3])==int:
             if g[3]+g[4] > 2:
                 totalover += 1
             gamecount += 1
+            
+            if g[3]==g[4]:
+                drawcount += 1
 
     #Get total stats
     gamecount = len(gamestonow)
@@ -118,11 +122,18 @@ def getgames():
         overperc = round(totalover*100/gamecount,1)
     underperc = round(100-overperc,1)
 
+    #Get draw statsif gamecount == 0:
+    if gamecount == 0:
+        drawperc = np.nan
+    else:
+        drawperc = round(drawcount*100/gamecount,1)
+    
+
     responsetext = ''
     
     if resp:
 
-        responsetext += '<div id="overunder" class="text-center"><table class="table table-bordered table-striped"><th colspan="2">Overall Stats'+labelsuffix+'</th><tr><td>Games</td><td>'+str(gamecount)+'</td></tr><tr><td>Over</td><td>'+str(totalover)+' ('+str(overperc)+'%)</td></tr><tr><td>Under</td><td>'+str(gamecount-totalover)+' ('+str(underperc)+'%)</td></tr></table></div><p>'
+        responsetext += '<div id="overunder" class="text-center"><table class="table table-bordered table-striped"><th colspan="2">Overall Stats'+labelsuffix+'</th><tr><td>Games</td><td>'+str(gamecount)+'</td></tr><tr><td>Over</td><td>'+str(totalover)+' ('+str(overperc)+'%)</td></tr><tr><td>Under</td><td>'+str(gamecount-totalover)+' ('+str(underperc)+'%)</td></tr><tr><td>Draws</td><td>'+str(drawcount)+' ('+str(drawperc)+'%)</td></tr></table></div><p>'
         
         #Turn the results into a pandas file
         table = pd.read_sql_query(query,conn)
