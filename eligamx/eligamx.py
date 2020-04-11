@@ -63,7 +63,8 @@ def main():
                 continue
         
             try:
-                homescore,awayscore = [int(x) for x in re.findall('[0-9]+',row.find_all('div',{'class':'score'}).text)[:2]]
+                print 
+                homescore,awayscore = [int(x) for x in re.findall('[0-9]+',row.find('div',{'class':'score'}).text)[:2]]
                 print(homescore,awayscore)
             except:
                 homescore = awayscore = np.nan
