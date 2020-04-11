@@ -194,6 +194,8 @@ def get_teams(r):
     
     if len(teams) < 2:
         return False
+    elif 'no player' in teams[0] or 'no player' in teams[1]:
+        return False
     else:
         #get rid of anything that suggests a team name was less than 3 characters
         if len(teams[0]) < 3:

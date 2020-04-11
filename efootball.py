@@ -71,6 +71,26 @@ def getgames():
         dbpath = './FUFV/Tercera Division FUFV.db'
     elif comp =='7':
         dbpath = './eligamx/eligamx-Torneo de eLiga MX.db'
+    elif comp =='8':
+        dbpath = './Cyberleagues/master.db'
+    elif comp =='9':
+        dbpath = './Cyberleagues/Cyber Champions League.db'
+    elif comp =='10':
+        dbpath = './Cyberleagues/Cyber Copa America.db'
+    elif comp =='11':
+        dbpath = './Cyberleagues/Cyber Europa League.db'
+    elif comp =='12':
+        dbpath = './Cyberleagues/Cyber World Cup.db'
+    elif comp =='13':
+        dbpath = './Cyberleagues/England Cyber Stars League.db'
+    elif comp =='14':
+        dbpath = './Cyberleagues/France Cyber Stars League.db'
+    elif comp =='15':
+        dbpath = './Cyberleagues/Germany Cyber Stars League.db'
+    elif comp =='16':
+        dbpath = './Cyberleagues/Italy Cyber Stars League.db'
+    elif comp =='17':
+        dbpath = './Cyberleagues/Spain Cyber Stars League.db'
     else:
         return ''
     
@@ -96,7 +116,7 @@ def getgames():
         overperc = np.nan
     else:
         overperc = round(totalover*100/gamecount,1)
-    underperc = 100-overperc
+    underperc = round(100-overperc,1)
 
     responsetext = ''
     
