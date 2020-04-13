@@ -17,7 +17,7 @@ def main(browser=None):
        
     #get an instance of chrome going
     if not browser:
-        browser =  openBrowser()
+        browser =  openBrowser(headless=False)
         browser.get('https://www.facebook.com/esportsbattle')
     else:
         pass
@@ -37,8 +37,7 @@ def main(browser=None):
     #pickle.dump(BS(browser.page_source,'html.parser'),open('page.pkl','wb'))
     
     if click_completed:
-    
-        conn = connect_to_database('eSportsBattle/esportsbattle.db')
+        
         existing_results = opendf('eSportsBattle/esportsbattle')
         
         #Use Beautiful Soup and Pandas to bring in the info
@@ -52,6 +51,7 @@ def main(browser=None):
         df = consolidate_data(df)
         df.drop_duplicates(subset=['DATE','HOME','AWAY'],inplace=True,keep='last')
         
+        conn = connect_to_database('eSportsBattle/esportsbattle.db')
         #Send it to the database
         df.to_sql('MATCHES',conn,if_exists='replace',index=False)
         df.to_pickle('eSportsBattle/esportsbattle')
@@ -67,12 +67,12 @@ def main(browser=None):
         print ('Did not complete clicking buttons.')
         return None
     
-def click_seemore_buttons(browser,count_limit=300):
+def click_seemore_buttons(browser,count_limit=100):
     
     counter = 0
     
     try:
-        while browser.find_elements_by_link_text('See More'):
+        while True:
             seemore = browser.find_elements_by_link_text('See More')
             for s in reversed(seemore):
                 #This try exists as sometimes links are not clickable for whatever reason. That is fine, as they will be found
