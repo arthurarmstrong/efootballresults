@@ -72,7 +72,7 @@ def main():
                     #a bit of a hacky solution to try and get more accurate game times
                     gamescounted += 1
                     if gamescounted %2 == 0:
-                        timestamp += 60*18
+                        timestamp += 60*15
                         
                     gameID = str(timestamp)+hometeam+awayteam
                     
