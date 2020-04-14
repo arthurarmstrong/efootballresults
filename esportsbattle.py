@@ -17,7 +17,7 @@ def main(browser=None):
        
     #get an instance of chrome going
     if not browser:
-        browser =  openBrowser(headless=False)
+        browser =  openBrowser()
         browser.get('https://www.facebook.com/esportsbattle')
     else:
         pass
