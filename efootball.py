@@ -74,7 +74,7 @@ def getgames():
     elif comp =='8':
         dbpath = './Cyberleagues/master.db'
     elif comp =='9':
-        dbpath = './br/Electronic LeaguesPro Player Cup - PS4.db'
+        dbpath = './BR/Electronic LeaguesPro Player Cup - PS4.db'
 
     else:
         return ''
@@ -161,7 +161,7 @@ def getgames():
 @app.route('/getdbupdatetime.php')
 def getdbupdatetime():
     
-    updatetime = os.path.getmtime('efootball.db') 
+    updatetime = os.path.getmtime('eFootball/efootball.db') 
     return str(updatetime)
 
 def build_table(df,season=None):
