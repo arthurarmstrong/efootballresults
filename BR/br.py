@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup as BS
 import pandas as pd
 import sqlite3, dateparser
 import numpy as np
-import sys,time
+import time
 from datetime import datetime
 from consolidate_data import consolidate_data
 
@@ -15,6 +15,8 @@ def main(browser=None):
     if not 'browser' in locals(): 
         browser = webdriver.Chrome(executable_path='C:\\Users\\GerardArmstrong\\Documents\\Python Scripts\\Compiler\\chromedriver.exe')
     
+    browser.get('https://in.betradar.com/betradar/index.php')
+    input('Please sign in and go to the results tab and hit enter to continue.')
     #browser.add_cookie
     
     try:
@@ -28,9 +30,9 @@ def main(browser=None):
     except:
         pass
     
-    sport = 'Soccer'
-    catsel = 'Electronic Leagues'
-    event = 'Pro Player Cup - PS4'
+    sport = 'Aussie rules'
+    catsel = 'Australia'
+    event = 'All tournaments'
     
     
     sportsel_select = browser.find_element_by_id('sportsel_adv')
@@ -53,7 +55,7 @@ def main(browser=None):
     existing_games = opendf(f'{catsel}{event}')
     
     ref_timestamp = time.time()
-    weeks = 4
+    weeks = 104
     
     for wk in range(weeks):
         #Set date range  
@@ -97,12 +99,24 @@ def get_data_from_table(existing_games,page):
     for table in tables:
         
         datestr = table.find('tbody').find('td').text.strip()
-        compname = table.find_all('tr')[1].find('td').text.replace(u'\xa0', ' ').replace('  ',' ').strip(' -')
         
-        for row in table.find_all('tr')[2:]:
+        
+        for row in table.find_all('tr')[1:]:
+                        
             cols = row.find_all('td')
+            
+            try:
+                if 'font-weight:bold' in cols[0].get('style'):
+                    compname = cols[0].text.replace(u'\xa0', ' ').replace('  ',' ').strip(' -')
+                    continue
+            except:
+                pass
 
-            gmtime = cols[1].text
+            try:
+                gmtime = cols[1].text
+            except:
+                continue
+            
             gametimestr = datestr+' '+gmtime
             utctime_struct = datetime.utctimetuple(dateparser.parse(gametimestr))
             time_stamp = time.mktime(utctime_struct)
