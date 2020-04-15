@@ -10,52 +10,84 @@ import time
 from datetime import datetime
 from consolidate_data import consolidate_data
 
-def main(browser=None):
+def main(browser=None,waitForSelections=False):
     
-    if not 'browser' in locals(): 
+    if not browser: 
         browser = webdriver.Chrome(executable_path='C:\\Users\\GerardArmstrong\\Documents\\Python Scripts\\Compiler\\chromedriver.exe')
     
-    #browser.get('https://in.betradar.com/betradar/index.php')
-    #input('Please sign in and go to the results tab and hit enter to continue.')
-    #browser.add_cookie
+    browser.get('https://in.betradar.com/betradar/index.php')
+    
+    #click login button
+    #browser.find_element_by_link_text('Login').click()
+    
+    browser.execute_script('document.getElementById("username").value = "radar491"; document.getElementById("password").value = "9fsXxlojbz6"')
+    #click submit
+    [x for x in browser.find_elements_by_tag_name('button') if x.get_attribute('type') == 'submit'][0].click()
+    
+    while True:
+        try:
+            #once logged in, click results tab
+            browser.find_element_by_partial_link_text('Resulting').click()
+            browser.find_element_by_link_text('Results').click()
+            break
+        except:
+            pass
     
     try:
         browser.switch_to_frame('innerframe')
     except:
         pass
     
-    try:
-        browser.find_element_by_link_text('Advanced version').click()
-        time.sleep(1)
-    except:
-        pass
-    
+    while True:
+        try:
+            browser.find_element_by_link_text('Advanced version').click()
+            break
+        except:
+            pass
+
     sport = 'Soccer'
-    catsel = 'Electronic leagues'
-    event = 'eSerie A, FIFA'
+    catsel = 'Electronic Leagues'
+    event = 'Pro Player Cup - PS4'
+
+    while True:
+        try:
+            if waitForSelections:
+                input('Please make your selections and press enter.')
+            else:
+                #Else automatically select the 
+                print(1)
+                sportsel_select = browser.find_element_by_id('sportsel_adv')
+                print(2)
+                catsel_select = browser.find_element_by_id('catsel_adv')
+                print(3)
+                days_select = browser.find_element_by_id('days')
+                print(4)
+                event_select = browser.find_element_by_id('toursel_adv')
+                
+                #Click the entire last week button
+                [x for x in days_select.find_elements_by_tag_name('option')][-1].click()
+                #Click into sport
+                print(5)
+                [x for x in sportsel_select.find_elements_by_tag_name('option') if x.get_attribute('text') == sport][0].click()
+                time.sleep(2)
+                #click into Electronic League
+                print(6)
+                [x for x in catsel_select.find_elements_by_tag_name('option') if x.get_attribute('text') == catsel][0].click()
+                time.sleep(2)
+                #click into requested event
+                print(7)
+                [x for x in event_select.find_elements_by_tag_name('option') if event in x.get_attribute('text')][0].click()
+                time.sleep(2)
+                
+            break
+        except:
+            pass
     
-    
-    sportsel_select = browser.find_element_by_id('sportsel_adv')
-    catsel_select = browser.find_element_by_id('catsel_adv')
-    days_select = browser.find_element_by_id('days')
-    event_select = browser.find_element_by_id('toursel_adv')
-    
-    #Click the entire last week button
-    #[x for x in days_select.find_elements_by_tag_name('option')][-1].click()
-    #Click into sport
-    #[x for x in sportsel_select.find_elements_by_tag_name('option') if x.get_attribute('text') == sport][0].click()
-    #time.sleep(2)
-    #click into Electronic League
-    #[x for x in catsel_select.find_elements_by_tag_name('option') if x.get_attribute('text') == catsel][0].click()
-    #time.sleep(2)
-    #click into requested event
-    #[x for x in event_select.find_elements_by_tag_name('option') if x.get_attribute('text') == event][0].click()
-    #time.sleep(2)
     
     existing_games = opendf(f'{catsel}{event}')
     
     ref_timestamp = time.time()
-    weeks = 20
+    weeks = 1
     
     for wk in range(weeks):
         #Set date range  
@@ -201,4 +233,4 @@ def connect_to_database(path):
     return conn
 
 if __name__ == '__main__':
-    main(browser)
+    main()
