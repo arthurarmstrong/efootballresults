@@ -15,8 +15,8 @@ def main(browser=None):
     if not 'browser' in locals(): 
         browser = webdriver.Chrome(executable_path='C:\\Users\\GerardArmstrong\\Documents\\Python Scripts\\Compiler\\chromedriver.exe')
     
-    browser.get('https://in.betradar.com/betradar/index.php')
-    input('Please sign in and go to the results tab and hit enter to continue.')
+    #browser.get('https://in.betradar.com/betradar/index.php')
+    #input('Please sign in and go to the results tab and hit enter to continue.')
     #browser.add_cookie
     
     try:
@@ -30,9 +30,9 @@ def main(browser=None):
     except:
         pass
     
-    sport = 'Aussie rules'
-    catsel = 'Australia'
-    event = 'All tournaments'
+    sport = 'Soccer'
+    catsel = 'Electronic leagues'
+    event = 'eSerie A, FIFA'
     
     
     sportsel_select = browser.find_element_by_id('sportsel_adv')
@@ -41,21 +41,21 @@ def main(browser=None):
     event_select = browser.find_element_by_id('toursel_adv')
     
     #Click the entire last week button
-    [x for x in days_select.find_elements_by_tag_name('option')][-1].click()
+    #[x for x in days_select.find_elements_by_tag_name('option')][-1].click()
     #Click into sport
-    [x for x in sportsel_select.find_elements_by_tag_name('option') if x.get_attribute('text') == sport][0].click()
-    time.sleep(2)
+    #[x for x in sportsel_select.find_elements_by_tag_name('option') if x.get_attribute('text') == sport][0].click()
+    #time.sleep(2)
     #click into Electronic League
-    [x for x in catsel_select.find_elements_by_tag_name('option') if x.get_attribute('text') == catsel][0].click()
-    time.sleep(2)
+    #[x for x in catsel_select.find_elements_by_tag_name('option') if x.get_attribute('text') == catsel][0].click()
+    #time.sleep(2)
     #click into requested event
-    [x for x in event_select.find_elements_by_tag_name('option') if x.get_attribute('text') == event][0].click()
-    time.sleep(2)
+    #[x for x in event_select.find_elements_by_tag_name('option') if x.get_attribute('text') == event][0].click()
+    #time.sleep(2)
     
     existing_games = opendf(f'{catsel}{event}')
     
     ref_timestamp = time.time()
-    weeks = 104
+    weeks = 20
     
     for wk in range(weeks):
         #Set date range  
