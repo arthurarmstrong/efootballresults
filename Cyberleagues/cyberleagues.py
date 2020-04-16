@@ -9,22 +9,22 @@ from selenium.webdriver.chrome.options import Options
 def main():
     
     #Delete the old sheet
-    #if 'Results .xlsx' in os.listdir():
-    #    os.remove('Results .xlsx')
+    if 'Results .xlsx' in os.listdir():
+        os.remove('Results .xlsx')
     
     #Download the new sheet
-    #browser = openBrowser(headless=False)
-    #browser.get('https://docs.google.com/spreadsheets/d/1DzPBoZzRx1JraO48IaiRsTCML75XXLFMj0ZItfaI8-A/edit#gid=473368820')
-    #browser.find_element_by_id('docs-file-menu').click()
-    #time.sleep(2)
-    #[x for x in browser.find_elements_by_tag_name('span') if '다운로드' in x.text][0].click()
-    #time.sleep(2)
-    #[x for x in browser.find_elements_by_tag_name('span') if 'xlsx' in x.text][0].click()
+    browser = openBrowser(headless=False)
+    browser.get('https://docs.google.com/spreadsheets/d/1DzPBoZzRx1JraO48IaiRsTCML75XXLFMj0ZItfaI8-A/edit#gid=473368820')
+    browser.find_element_by_id('docs-file-menu').click()
+    time.sleep(2)
+    [x for x in browser.find_elements_by_tag_name('span') if '다운로드' in x.text][0].click()
+    time.sleep(2)
+    [x for x in browser.find_elements_by_tag_name('span') if 'xlsx' in x.text][0].click()
     
     #Wait until sheet downloaded
-    #while not 'Results .xlsx' in os.listdir():
-    #    time.sleep(5)
-    #browser.close()
+    while not 'Results .xlsx' in os.listdir():
+        time.sleep(5)
+    browser.close()
     
     Excel = pd.ExcelFile(r'Results .xlsx')
 
