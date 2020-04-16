@@ -55,29 +55,22 @@ def main(browser=None,waitForSelections=False):
                 input('Please make your selections and press enter.')
             else:
                 #Else automatically select the 
-                print(1)
                 sportsel_select = browser.find_element_by_id('sportsel_adv')
-                print(2)
                 catsel_select = browser.find_element_by_id('catsel_adv')
-                print(3)
                 days_select = browser.find_element_by_id('days')
-                print(4)
                 event_select = browser.find_element_by_id('toursel_adv')
                 
                 #Click the entire last week button
                 [x for x in days_select.find_elements_by_tag_name('option')][-1].click()
                 #Click into sport
-                print(5)
                 [x for x in sportsel_select.find_elements_by_tag_name('option') if x.get_attribute('text') == sport][0].click()
-                time.sleep(2)
+                #time.sleep(2)
                 #click into Electronic League
-                print(6)
                 [x for x in catsel_select.find_elements_by_tag_name('option') if x.get_attribute('text') == catsel][0].click()
-                time.sleep(2)
+                #time.sleep(2)
                 #click into requested event
-                print(7)
                 [x for x in event_select.find_elements_by_tag_name('option') if event in x.get_attribute('text')][0].click()
-                time.sleep(2)
+                #time.sleep(2)
                 
             break
         except:
@@ -121,7 +114,8 @@ def main(browser=None,waitForSelections=False):
     existing_games.to_sql('MATCHES',conn,index=False)
     conn.commit()
     conn.close()
-    #browser.close()
+    browser.close()
+    
     
 def get_data_from_table(existing_games,page):
     
