@@ -27,10 +27,7 @@ def main(browser=None):
     
     #refresh the page for login
     browser.refresh()
-    
-    #this should not be needed anymore
-    #input('Please log in and press any button to continue')
-    
+
     #click all the buttons that say 'See More'
     browser, click_completed = click_seemore_buttons(browser)
     #save the page in case we want it again later
@@ -243,10 +240,11 @@ def consolidate(df):
     
     return df
 
-def opendf(df):
-    if df in os.listdir():
-        return pd.read_pickle(df)
-    else:
+def opendf(path):
+    try:
+        df = pd.read_pickle(path)
+        return df
+    except:
         return pd.DataFrame([])
 
 def connect_to_database(path):
