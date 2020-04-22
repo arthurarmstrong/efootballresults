@@ -47,7 +47,7 @@ def main(browser=None,waitForSelections=False):
 
     sport = 'Soccer'
     catsel = 'Electronic Leagues'
-    event = 'Pro Player Cup - PS4'
+    event = 'Pro Player Cup - XBox'
 
     while True:
         try:
@@ -80,7 +80,7 @@ def main(browser=None,waitForSelections=False):
     existing_games = opendf(f'{catsel}{event}')
     
     ref_timestamp = time.time()
-    weeks = 1
+    weeks = 4
     
     for wk in range(weeks):
         #Set date range  

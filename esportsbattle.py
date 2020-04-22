@@ -17,7 +17,7 @@ def main(browser=None):
        
     #get an instance of chrome going
     if not browser:
-        browser =  openBrowser()
+        browser =  openBrowser(headless=False)
         browser.get('https://www.facebook.com/esportsbattle')
     else:
         pass
@@ -70,7 +70,7 @@ def click_seemore_buttons(browser,count_limit=100):
     
     try:
         while True:
-            seemore = browser.find_elements_by_link_text('See More')
+            seemore = browser.find_elements_by_xpath("//*[contains(text(), 'See More')]")
             for s in reversed(seemore):
                 #This try exists as sometimes links are not clickable for whatever reason. That is fine, as they will be found
                 # again in another pass

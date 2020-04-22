@@ -75,6 +75,8 @@ def getgames():
         dbpath = './Cyberleagues/master.db'
     elif comp =='9':
         dbpath = './BR/Electronic LeaguesPro Player Cup - PS4.db'
+    elif comp =='10':
+        dbpath = './BR/Electronic LeaguesPro Player Cup - XBox.db'
 
     else:
         return ''
