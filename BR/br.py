@@ -10,20 +10,8 @@ import time
 from datetime import datetime
 from consolidate_data import consolidate_data
 
-def main(browser=None,waitForSelections=False):
-    
-    if not browser: 
-        browser = webdriver.Chrome(executable_path='C:\\Users\\GerardArmstrong\\Documents\\Python Scripts\\Compiler\\chromedriver.exe')
-    
-    browser.get('https://in.betradar.com/betradar/index.php')
-    
-    #click login button
-    #browser.find_element_by_link_text('Login').click()
-    
-    browser.execute_script('document.getElementById("username").value = "radar491"; document.getElementById("password").value = "9fsXxlojbz6"')
-    #click submit
-    [x for x in browser.find_elements_by_tag_name('button') if x.get_attribute('type') == 'submit'][0].click()
-    
+def get_br_results(browser=None,waitForSelections=False,sport='Soccer',catsel='Electronic Leagues',event='Pro Player Cup - PS4'):
+        
     while True:
         try:
             #once logged in, click results tab
@@ -31,7 +19,7 @@ def main(browser=None,waitForSelections=False):
             browser.find_element_by_link_text('Results').click()
             break
         except:
-            pass
+            browser.refresh()
     
     try:
         browser.switch_to_frame('innerframe')
@@ -44,10 +32,6 @@ def main(browser=None,waitForSelections=False):
             break
         except:
             pass
-
-    sport = 'Soccer'
-    catsel = 'Electronic Leagues'
-    event = 'Pro Player Cup - XBox'
 
     while True:
         try:
@@ -80,7 +64,7 @@ def main(browser=None,waitForSelections=False):
     existing_games = opendf(f'{catsel}{event}')
     
     ref_timestamp = time.time()
-    weeks = 4
+    weeks = 1
     
     for wk in range(weeks):
         #Set date range  
@@ -226,5 +210,26 @@ def connect_to_database(path):
     
     return conn
 
+def set_up_browser():
+    
+    browser = webdriver.Chrome(executable_path='C:\\Users\\GerardArmstrong\\Documents\\Python Scripts\\Compiler\\chromedriver.exe')
+    
+    browser.get('https://in.betradar.com/betradar/index.php')
+    
+    #click login button
+    #browser.find_element_by_link_text('Login').click()
+    
+    browser.execute_script('document.getElementById("username").value = "radar491"; document.getElementById("password").value = "9fsXxlojbz6"')
+    #click submit
+    [x for x in browser.find_elements_by_tag_name('button') if x.get_attribute('type') == 'submit'][0].click()
+
+    return browser
+
 if __name__ == '__main__':
-    main()
+    
+    browser = set_up_browser()
+    
+    get_br_results()
+    get_br_results(event='Pro Player Cup - XBox')
+    
+    browser.close()

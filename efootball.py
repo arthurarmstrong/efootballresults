@@ -176,7 +176,7 @@ def build_table(df,season=None):
     #Build zero vector to populate table with initially
     zero_column = np.zeros(len(teams),dtype=int)
     #Initialise dataframe
-    table = pd.DataFrame(index=teams,data={'P':zero_column,'W':zero_column,'D':zero_column,'L':zero_column,'F':zero_column,'A':zero_column,'+/-':zero_column,'Pts':zero_column,'GD Per Game':zero_column})
+    table = pd.DataFrame(index=teams,data={'P':zero_column,'W':zero_column,'D':zero_column,'L':zero_column,'F':zero_column,'A':zero_column,'+/-':zero_column,'Pts':zero_column,'GD Per Game':zero_column,'Win %':zero_column})
   
     
     for i in df.index:
@@ -209,6 +209,9 @@ def build_table(df,season=None):
         table.at[this_game['AWAY'],'+/-'] += a_s-h_s
         
     table['GD Per Game'] = (table['F']-table['A'])/table['P']
+    
+    table['Win %'] = (table['W']/table['P'])*100
+    
     table = table.round(2)
     
     table.sort_values(by=['GD Per Game'],ascending=False,inplace=True)
