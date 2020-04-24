@@ -19,7 +19,7 @@ def get_br_results(browser=None,waitForSelections=False,sport='Soccer',catsel='E
             browser.find_element_by_link_text('Results').click()
             break
         except:
-            browser.refresh()
+            pass
     
     try:
         browser.switch_to_frame('innerframe')
@@ -98,7 +98,6 @@ def get_br_results(browser=None,waitForSelections=False,sport='Soccer',catsel='E
     existing_games.to_sql('MATCHES',conn,index=False)
     conn.commit()
     conn.close()
-    browser.close()
     
     
 def get_data_from_table(existing_games,page):
@@ -229,7 +228,10 @@ if __name__ == '__main__':
     
     browser = set_up_browser()
     
-    get_br_results()
-    get_br_results(event='Pro Player Cup - XBox')
+    get_br_results(browser)
+    
+    browser.get('https://in.betradar.com/betradar/index.php')
+    
+    get_br_results(browser,event='Pro Player Cup - XBox')
     
     browser.close()
