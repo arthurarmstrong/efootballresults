@@ -1,6 +1,7 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import WebDriverException
+from selenium.webdriver.common.keys import Keys
 import re,os
 from bs4 import BeautifulSoup as BS
 import pandas as pd
@@ -70,19 +71,23 @@ def click_seemore_buttons(browser,count_limit=100):
     
     try:
         while True:
+            
             seemore = browser.find_elements_by_xpath("//*[contains(text(), 'See More')]")
+            
             for s in reversed(seemore):
                 #This try exists as sometimes links are not clickable for whatever reason. That is fine, as they will be found
                 # again in another pass
                 try:
                     s.click()
+                    #increment counter
                     counter += 1
                     if counter % 10 == 0: print (counter)
                     if counter >= count_limit:
                         print('Reached click count limit, returning')
                         return browser,True    
                 except:
-                    pass
+                    #scroll to bottom
+                    browser.find_element_by_xpath('//body').send_keys(Keys.CONTROL+Keys.END)
                 
 
         #Returns a message along with browser saying that all buttons were clicked
