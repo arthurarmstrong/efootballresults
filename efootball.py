@@ -222,7 +222,7 @@ def build_table(df,season=None):
     
     table = table.round(2)
     
-    table.sort_values(by=['GD Per Game'],ascending=False,inplace=True)
+    table.sort_values(by=['Rating'],ascending=False,inplace=True)
 
     return table
 

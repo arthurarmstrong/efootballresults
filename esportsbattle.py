@@ -69,23 +69,21 @@ def click_seemore_buttons(browser,count_limit=100):
     
     counter = 0
     
-    seemore_old = None
+    #seemore_old = None
     
     try:
         while True:
             
-            
             seemore = browser.find_elements_by_xpath("//*[contains(text(), 'See More')]")
             
-            if seemore_old == seemore:
+            if not seemore:
                 browser.find_element_by_xpath('//body').send_keys(Keys.CONTROL+Keys.END)
-            seemore_old = seemore
             
             for s in reversed(seemore):
                 #This try exists as sometimes links are not clickable for whatever reason. That is fine, as they will be found
                 # again in another pass
                 try:
-                    s.click()
+                    browser.execute_script('arguments[0].click()',s)
                     #increment counter
                     counter += 1
                     if counter % 10 == 0: print (counter)
