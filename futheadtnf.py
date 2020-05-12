@@ -21,7 +21,7 @@ def main(tourn_id=None):
     existing_games = opendf(f'futhead_tnf/{comp}')
     
     tourn_ids = list(range(1,31))
-    tourn_ids.extend([f'{x}_2' for x in range(1,32)])
+    tourn_ids.extend([f'{x}_2' for x in range(31,35)])
     
     for tourn_id in tourn_ids:
         browser.get(f'https://challonge.com/futhead_tnf_{tourn_id}')

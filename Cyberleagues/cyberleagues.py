@@ -9,8 +9,8 @@ from selenium.webdriver.chrome.options import Options
 def main():
     
     #Delete the old sheet
-    if 'Results .xlsx' in os.listdir():
-        os.remove('Results .xlsx')
+    if 'Results  FIFA.xlsx' in os.listdir():
+        os.remove('Results  FIFA.xlsx')
     
     #Download the new sheet
     browser = openBrowser(headless=False)
@@ -22,11 +22,11 @@ def main():
     [x for x in browser.find_elements_by_tag_name('span') if 'xlsx' in x.text][0].click()
     
     #Wait until sheet downloaded
-    while not 'Results .xlsx' in os.listdir():
+    while not 'Results  FIFA.xlsx' in os.listdir():
         time.sleep(5)
     browser.close()
     
-    Excel = pd.ExcelFile(r'Results .xlsx')
+    Excel = pd.ExcelFile(r'Results  FIFA.xlsx')
 
     master = pd.DataFrame()
 

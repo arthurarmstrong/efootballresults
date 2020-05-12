@@ -215,8 +215,8 @@ def build_table(df,season=None):
     table['Win %'] = (table['W']/table['P'])*100
     
     #Also provide a combined GD using win % as a regressor
-    xs = table['Win %'].values
-    ys = table['GD Per Game'].values
+    xs = table['Win %'].dropna().values
+    ys = table['GD Per Game'].dropna().values
     slope, intercept, _, _, _ = stats.linregress(xs,ys)
     table['Rating'] = (table['GD Per Game']+(table['Win %']*slope+intercept))/2
     
