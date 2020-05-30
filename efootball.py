@@ -79,7 +79,8 @@ def getgames():
         dbpath = './BR/Electronic LeaguesPro Player Cup - XBox.db'
     elif comp =='11':
         dbpath = './futhead_tnf/TNF.db'
-
+    elif comp =='12':
+        dbpath = './GT Leagues/GT.db'
     else:
         return ''
     

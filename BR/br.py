@@ -64,7 +64,7 @@ def get_br_results(browser=None,waitForSelections=False,sport='Soccer',catsel='E
     existing_games = opendf(f'{catsel}{event}')
     
     ref_timestamp = time.time()
-    weeks = 1
+    weeks = 2
     
     for wk in range(weeks):
         #Set date range  
@@ -218,7 +218,7 @@ def set_up_browser():
     #click login button
     #browser.find_element_by_link_text('Login').click()
     
-    browser.execute_script('document.getElementById("username").value = "radar491"; document.getElementById("password").value = "9fsXxlojbz6"')
+    browser.execute_script('document.getElementById("username").value = "radar491"; document.getElementById("password").value = "9fsXxlojbz66"')
     #click submit
     [x for x in browser.find_elements_by_tag_name('button') if x.get_attribute('type') == 'submit'][0].click()
 
