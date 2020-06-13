@@ -17,7 +17,6 @@ import sys,time
 from datetime import datetime
 from consolidate_data import consolidate_data
 sys.setrecursionlimit(200000)
-from common_functions import check_for_dupes
 
 def main():
 
@@ -134,6 +133,40 @@ def get_data_from_table(page,all_games,seasonyear):
         all_games = pd.concat([all_games,new_game],ignore_index=True,sort=False)
     return all_games
 
+def check_for_dupes(df,subset=['GAME ID','TOTAL']):
+    #This function returns TRUE if the length of the original dataframe is not the same as the 
+    #length of the same dataframe with dupes from subset column removed.
+    
+    #If the data frame is empty there are no dupes so just return false
+    if df.empty: return False
+    
+    #Drop unplayed games as they should be allowed to be duped
+    _, df = separate(df)
+    
+    if len(df) == 0: return False #If there is nothing in the dataframe yet there can't be any dupes - return false
+    
+    if all(x in list(df.keys()) for x in subset): #proceed if all the keys passed are in the dataframe
+        dupes_exist = len(df.drop_duplicates(subset=subset,inplace=False,keep='last')) != len(df)
+        if dupes_exist == True: print('Found duplicates')
+    else:
+        dupes_exist = False
+    return dupes_exist
+
+def separate(all_games):
+    #Separate played and unplayed unplayed games
+    try:
+        compile_list = all_games[(all_games['DATE'].values>=time.time())==True]
+        compile_list.reset_index(inplace=True,drop=True)
+    except TypeError:
+        compile_list = pd.DataFrame([])
+    try:
+        result_list = all_games[all_games['DATE'].values<=time.time()]
+        result_list.dropna(subset=['TOTAL','HOME SCORE','AWAY SCORE'],inplace=True)
+        result_list.reset_index(inplace=True,drop=True)
+    except TypeError:
+        result_list = pd.DataFrame([])
+    
+    return compile_list, result_list
     
 if __name__ == '__main__':
     main()

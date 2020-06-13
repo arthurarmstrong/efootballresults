@@ -14,7 +14,7 @@ def main():
     
     #Download the new sheet
     browser = openBrowser(headless=False)
-    browser.get('https://docs.google.com/spreadsheets/d/1DzPBoZzRx1JraO48IaiRsTCML75XXLFMj0ZItfaI8-A/edit#gid=473368820')
+    browser.get('https://docs.google.com/spreadsheets/d/1DzPBoZzRx1JraO48IaiRsTCML75XXLFMj0ZItfaI8-A/edit#gid=1509390892')
     browser.find_element_by_id('docs-file-menu').click()
     time.sleep(2)
     [x for x in browser.find_elements_by_tag_name('span') if '다운로드' in x.text][0].click()
@@ -92,6 +92,7 @@ def main():
                                                                          
                     #This turns the new game data into a pandas dataframe
                     new_game = pd.DataFrame(gamedic)
+                    print(new_game)
                     #This adds the new dataframe to the complete list of games
                     master = pd.concat([master,new_game],ignore_index=True,sort=False)
             except:
