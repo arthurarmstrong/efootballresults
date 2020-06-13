@@ -92,7 +92,6 @@ def main():
                                                                          
                     #This turns the new game data into a pandas dataframe
                     new_game = pd.DataFrame(gamedic)
-                    print(new_game)
                     #This adds the new dataframe to the complete list of games
                     master = pd.concat([master,new_game],ignore_index=True,sort=False)
             except:
