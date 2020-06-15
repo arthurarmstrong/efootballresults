@@ -15,7 +15,7 @@ import sqlite3
 import numpy as np
 import sys,time
 from datetime import datetime
-from consolidate_data import consolidate_data
+#from consolidate_data import consolidate_data
 sys.setrecursionlimit(200000)
 
 def main():
