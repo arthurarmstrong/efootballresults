@@ -98,6 +98,8 @@ def main():
                 continue
 
     master.drop_duplicates(subset='GAME ID',inplace=True,keep='last')
+
+    master = consolidate_data(master)
                     
     master.to_pickle('master.pkl')
     conn = connect_to_database('master.db')
