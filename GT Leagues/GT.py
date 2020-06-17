@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-This module downloads and processes results/fixtures from the Turkey FA as part of the compiler
-
-@author: gahome
-"""
-
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import WebDriverException
@@ -15,7 +8,7 @@ import sqlite3
 import numpy as np
 import sys,time
 from datetime import datetime
-#from consolidate_data import consolidate_data
+from consolidate_data import consolidate_data
 sys.setrecursionlimit(200000)
 
 def main():
