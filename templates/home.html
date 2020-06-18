@@ -5,13 +5,16 @@
   <!--Get the scripts and CSS for using datatables-->
   <!--<script src="{{ url_for('static',filename='jquery.js')}}"></script>-->
   <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
-  <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+  <!--<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>-->
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
   <script src="{{ url_for('static',filename='bootstrap.min.js')}}"></script>
+  <script src="{{ url_for('static',filename='h2hsel.js')}}"></script>
   <link rel="stylesheet" type=text/css href="{{ url_for('static',filename='bootstrap.min.css')}}">
   <link rel="stylesheet" type=text/css href="{{ url_for('static',filename='navbar.css')}}">
   <link rel="stylesheet" type=text/css href="{{ url_for('static',filename='style_snippets/faux_select.css')}}">
   <link rel="stylesheet" type=text/css href="{{ url_for('static',filename='style_snippets/headers.css')}}">
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 </head>
 
 <body class='bg-dark'>
@@ -57,7 +60,10 @@
         <input class="form-control" type="text" placeholder="Search and press enter to submit" aria-label="Search" id="search">
       </div>
 
+      <div id="h2hdata" class='text-light bg-dark'></div>
+
       <div id="games" class="container-fluid" style="background-color:white;opacity:0.92;">
+
       </div>
 
 
@@ -206,6 +212,23 @@ document.getElementById('search').addEventListener("keyup", function(event) {
   }
 })
 
+  $( function() {
+    $( document ).tooltip({
+      track: true,
+      position: {
+        my: "center bottom-20",
+        at: "center top",
+        using: function( position, feedback ) {
+          $( this ).css( position );
+          $( "<div>" )
+            .addClass( "arrow" )
+            .addClass( feedback.vertical )
+            .addClass( feedback.horizontal )
+            .appendTo( this );
+        }
+    }})});
+
 </script>
 
 <script src="{{ url_for('static',filename='style_snippets/faux_select.js')}}"></script>
+

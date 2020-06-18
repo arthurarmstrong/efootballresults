@@ -1,6 +1,16 @@
 
 function handicapper(p1=null,p2=null,mode='h2h') {
 
+	if (p1 != null) { 
+		p1 = p1.replace('(','\\\\(').replace(')','\\\\)')
+		console.log('p1 is ',p1)
+	}
+	if (p2 != null) { 
+		p2 = p2.replace('(','\\\\(').replace(')','\\\\)')
+	}
+	
+
+
 	var p1f = 0;
 	var p1a = 0;
 	var p1m = 0;
@@ -79,16 +89,40 @@ function handicapper(p1=null,p2=null,mode='h2h') {
 )	
 
 //work out the average handicap and total
-if (mode=='h2h') {
-	AH = Math.round((p1f-p1a)/p1m*100)/100;
-	avetot = Math.round((p1f+p2f)/p1m*100)/100;
-}
-else {
-	AH = (p1f-p1a)/p1m-(p2f-p2a)/p2m;
-	AH = Math.round(AH*100)/100;
-	avetot = ((p1f+p1a)/p1m+(p2f+p2a)/p2m)/2;
-	avetot = Math.round(avetot*100)/100;	
+AH = (p1f-p1a)/p1m-(p2f-p2a)/p2m;
+if (mode=='h2h'){AH/=2};
+AH = Math.round(AH*100)/100;
+avetot = ((p1f+p1a)/p1m+(p2f+p2a)/p2m)/2;
+avetot = Math.round(avetot*100)/100;	
+
+return {'AH':AH,'avetot':avetot, 'p1m':p1m,'p2m':p2m,'p1f':p1f,'p1a':p1a,'p2f':p2f,'p2a':p2a};
 }
 
-	return {'AH':AH,'avetot':avetot, 'p1m':p1m,'p2m':p2m,'p1f':p1f,'p1a':p1a,'p2f':p2f,'p2a':p2a};
+function h2h(tr) {
+
+	num_selected = $('.h2hsel').length
+
+
+  //if it has the class, toggle off
+  if ( $(tr).hasClass('h2hsel') ) {$(tr).toggleClass('h2hsel')} else {
+
+  	if (num_selected < 2) {
+  		$(tr).toggleClass('h2hsel')
+  }
+  }
+
+selected = $('.h2hsel')
+num_selected = selected.length
+if (num_selected == 2) {
+	p1 = $(selected[0])[0].children[0].textContent
+	p2 = $(selected[1])[0].children[0].textContent
+	console.log(p1,p2);
+	console.log(handicapper(p1,p2));
+	$('#h2hdata').html(p1+' '+p2);
+	$('#h2hdata').show();
+
+} else {
+	$('#h2hdata').hide()
+
+}
 }

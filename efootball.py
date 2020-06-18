@@ -131,7 +131,7 @@ def getgames():
         #try:
         responsetext += '<div id="ladder" class="text-center center-block"><h2>Table - Group Games</h2><p>'
         grouptable = build_table(table[table['STAGE']=='Group Stage'])
-        responsetext += grouptable.to_html() + '<p>'
+        responsetext += add_onclick(grouptable.to_html()) + '<p>'
         #except:
         #    pass
         try:
@@ -139,7 +139,7 @@ def getgames():
             responsetext += f'<h2>Table - {finalsheader}</h2><p><div id="ladder" class="text-center center-block">'
             #Build a table of the finals games
             finaltable = build_table(table[table['STAGE']!='Group Stage'])
-            responsetext += finaltable.to_html() + '</div><p>'
+            responsetext += add_onclick(finaltable.to_html()) + '</div><p>'
         except:
             pass
         
@@ -235,6 +235,10 @@ def get_unique_values_from_column(df,cols):
         unique = unique.union(set(df[col].values))
         
     return unique
+
+def add_onclick(html):
+    html= html.replace('<tr>','<tr onClick="h2h(this)">')    
+    return html
 
 if __name__ == "__main__":
     app.config['SESSION_TYPE'] = 'filesystem'
