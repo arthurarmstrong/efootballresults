@@ -122,7 +122,14 @@ function h2h(tr) {
 
 
   //if it has the class, toggle off
-  if ( $(tr).hasClass('h2hsel') ) {$(tr).toggleClass('h2hsel')} else {
+  if ( $(tr).hasClass('h2hsel') ) {
+  	$('.h2hsel').removeAttr('data-toggle');
+  	$('.h2hsel').removeAttr('data-html');
+  	$('.h2hsel').removeAttr('data-original-title');
+  	$('.h2hsel').removeAttr('title');
+
+  	$(tr).toggleClass('h2hsel');
+  } else {
 
   	if (num_selected < 2) {
   		$(tr).toggleClass('h2hsel')
@@ -158,11 +165,11 @@ if (h2h['AH'] > 0) {fav = p1} else {fav = p2}
 if (AH < 0) { pm = '+'} else if (AH > 0) { pm = '-' } else { pm = ''}
 
 if (h2h['p1m'] >= 0 && h2h['p2m']) {
-tooltip = `${p1} vs ${p2}.
+tooltip = `These two teams have played ${h2h['p1m']} times in the requested timeframe.<p>
 
-These two teams have played ${h2h['p1m']} times in the requested timeframe. The W/D/L record for ${p1} is ${h2h['p1w']}/${h2h['p1d']}/${h2h['p1l']}.
+<p>The W/D/L record for ${p1} is ${h2h['p1w']}/${h2h['p1d']}/${h2h['p1l']}.<p>
 
-${fav}'s average winning margin is ${Math.abs(h2h['AH'])} goals. The average total is ${h2h['avetot']}.
+${fav}'s average winning margin is ${Math.abs(h2h['AH'])} goals.<p>The average total is ${h2h['avetot']}.<p>
 
 Suggested AH: ${p1} ${pm}${Math.abs(AH)} at ${price}.`
 
@@ -170,7 +177,12 @@ Suggested AH: ${p1} ${pm}${Math.abs(AH)} at ${price}.`
 	tooltip = `${p1} and ${p2} have not played each other in the timeframe requested.`;
 }
 
-$('.h2hsel').attr('title',tooltip)
+$('.h2hsel').attr('data-toggle','tooltip');
+$('.h2hsel').attr('data-html','true');
+$('.h2hsel').attr('data-original-title',tooltip)
+$(function () {
+  $('[data-toggle="tooltip"]').tooltip()
+})
 
 }
 
