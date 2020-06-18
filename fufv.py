@@ -17,7 +17,7 @@ def main(tourn_id):
         browser = webdriver.Chrome(executable_path='C:\\Users\\GerardArmstrong\\Documents\\Python Scripts\\Compiler\\chromedriver.exe')
     
     
-    #for tourn_id in reversed(range(323)):
+    #for tourn_id in reversed(range(357)):
     browser.get(f'https://iesa-global.com/pro/torneos.php?torneo_id={tourn_id}&sec=calendario')
     
     page = BS(browser.page_source,'html.parser')
@@ -116,6 +116,6 @@ def opendf(df):
         return pd.DataFrame([])
     
 if __name__ == '__main__':
-    main(tourn_id=322)
-    main(tourn_id=323)
-    main(tourn_id=324)
+    main(tourn_id=353)
+    main(tourn_id=354)
+    main(tourn_id=355)
