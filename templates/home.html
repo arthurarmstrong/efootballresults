@@ -70,6 +70,28 @@
     <div class = 'text-light bg-dark' id="dbupdated"></div>
     <div class='text-light bg-dark'>E-Football Results, by Gerard Armstrong (2020)</div>
 
+
+<!--page load dialog.-->
+<div class="modal fade" id="dialog" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">H2H player stats have been added</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>You can now compare players by clicking on two names in the table.</p><p>Once selected, when you hover over the names it will give you H2H player stats.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Got it</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!---->
+
   </body>
   </html>
   <script>
@@ -211,7 +233,9 @@ document.getElementById('search').addEventListener("keyup", function(event) {
   }
 })
 
-
+$(window).on('load',function(){
+        $('#dialog').modal('show');
+    });
 
 </script>
 
