@@ -133,84 +133,95 @@ function h2h(tr) {
 
   	if (num_selected < 2) {
   		$(tr).toggleClass('h2hsel')
+  	}
   }
+
+  selected = $('.h2hsel')
+  num_selected = selected.length
+  if (num_selected == 2) {
+  	p1 = $(selected[0])[0].children[0].textContent
+  	p2 = $(selected[1])[0].children[0].textContent
+
+  	h2hdata = handicapper(p1,p2);
+  	updateH2HStats(h2hdata,p1,p2,selected);
+
+  	$('#h2hdata').show();
+
+  } else {
+  	$('#h2hdata').hide()
+  	$('#h2hcomparison').remove()
+
   }
-
-selected = $('.h2hsel')
-num_selected = selected.length
-if (num_selected == 2) {
-	p1 = $(selected[0])[0].children[0].textContent
-	p2 = $(selected[1])[0].children[0].textContent
-
-	h2hdata = handicapper(p1,p2);
-	updateH2HStats(h2hdata,p1,p2,selected);
-
-	$('#h2hdata').show();
-
-} else {
-	$('#h2hdata').hide()
-	$('#h2hcomparison').remove()
-
-}
 }
 
 function updateH2HStats(h2h,p1,p2,sel) {
 
-price = prettifyAH(h2h['AH'])
-AH = price[0]
-price = price[1]
+	price = prettifyAH(h2h['AH'])
+	AH = price[0]
+	price = price[1]
 
-if (h2h['AH'] > 0) {fav = p1} else {fav = p2}
+	if (h2h['AH'] > 0) {fav = p1} else {fav = p2}
 
-if (AH < 0) { pm = '+'} else if (AH > 0) { pm = '-' } else { pm = ''}
+		if (AH < 0) { pm = '+'} else if (AH > 0) { pm = '-' } else { pm = ''}
 
-if (h2h['p1m'] >= 0 && h2h['p2m']) {
-tooltip = `These two teams have played ${h2h['p1m']} times in the requested timeframe.<p>
+			if (h2h['p1m'] >= 0 && h2h['p2m']) {
+				tooltip = `These two teams have played ${h2h['p1m']} times in the requested timeframe.<p>
 
-<p>The W/D/L record for ${p1} is ${h2h['p1w']}/${h2h['p1d']}/${h2h['p1l']}.<p>
+				<p>The W/D/L record for ${p1} is ${h2h['p1w']}/${h2h['p1d']}/${h2h['p1l']}.<p>
 
-${fav}'s average winning margin is ${Math.abs(h2h['AH'])} goals.<p>The average total is ${h2h['avetot']}.<p>
+				${fav}'s average winning margin is ${Math.abs(h2h['AH'])} goals.<p>The average total is ${h2h['avetot']}.<p>
 
-Suggested AH: ${p1} ${pm}${Math.abs(AH)} at ${price}.`
+				Suggested AH: ${p1} ${pm}${Math.abs(AH)} at ${price}.`
 
-} else {
-	tooltip = `${p1} and ${p2} have not played each other in the timeframe requested.`;
-}
+			} else {
+				tooltip = `${p1} and ${p2} have not played each other in the timeframe requested.`;
+			}
 
-$('.h2hsel').attr('data-toggle','tooltip');
-$('.h2hsel').attr('data-html','true');
-$('.h2hsel').attr('data-original-title',tooltip)
-$(function () {
-  $('[data-toggle="tooltip"]').tooltip()
-})
+			$('.h2hsel').attr('data-toggle','tooltip');
+			$('.h2hsel').attr('data-html','true');
+			$('.h2hsel').attr('data-original-title',tooltip)
+			$(function () {
+				$('[data-toggle="tooltip"]').tooltip()
+			})
 
-}
+		}
 
-function prettifyAH(AH) {
+		function prettifyAH(AH) {
 
-	mod = AH % 0.25;
-	if (mod < 0) { pm = -1 } else { pm = 1 }
+			mod = AH % 0.25;
+			if (mod < 0) { pm = -1 } else { pm = 1 }
 
-	root = Math.round((AH - mod)*100)/100;
-	price = '$1.90'
+				root = Math.round((AH - mod)*100)/100;
+			price = '$1.90'
 
-	mod = Math.abs(mod);
-	if (mod  > 0.25/5 * 1 ) {price='$1.85'}
-	if (mod  > 0.25/5 * 2 ) {price='$1.80'}
-	if (mod  > 0.25/5 * 3 ) {root += 0.25*pm;price='$2.00'}
-	if (mod  > 0.25/5 * 4 ) {price='$1.95'}
+			mod = Math.abs(mod);
+			if (mod  > 0.25/5 * 1 ) {price='$1.85'}
+				if (mod  > 0.25/5 * 2 ) {price='$1.80'}
+					if (mod  > 0.25/5 * 3 ) {root += 0.25*pm;price='$2.00'}
+				if (mod  > 0.25/5 * 4 ) {price='$1.95'}
 
-	return [root,price]
+					return [root,price]
 
-}
+			}
 
-function getRating(p1) {
+		function getPlayerStats(p1) {
 
-rows = $('#ladder > table > tbody > tr')
-rows.filter(function () { 
-	row = $(this)[0].children
+			a = $('#ladder > table > tbody > tr').filter(function () { if ($(this).context.children[0].textContent == p1) { 
 
-	rat = row[11]
+				row = $(this).context.children
+				tds = new Array()
+				var i = 0
 
-	return [p1,rat]
-})}
+				for (i == 0 ; i<row.length ; i++) {
+
+					tds[i] = row[i].textContent
+
+				}
+
+			}
+
+		})
+
+		return {'p':tds[0],'mp':tds[1],'W':tds[2],'D':tds[3],'L':tds[4],'F':tds[5],'A':tds[6],'pm':tds[7],'GD':tds[9],'winperc':tds[10],'rating':tds[11]}
+
+		}

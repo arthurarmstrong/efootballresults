@@ -136,12 +136,13 @@ def getgames():
         #    pass
         try:
             #Make a new header for the finals table
-            responsetext += f'<h2>Table - {finalsheader}</h2><p><div id="ladder" class="text-center center-block">'
+            responsetext += f'<h2>Table - {finalsheader}</h2><p><div id="finalsladder" class="text-center center-block">'
             #Build a table of the finals games
             finaltable = build_table(table[table['STAGE']!='Group Stage'])
             responsetext += add_onclick(finaltable.to_html()) + '</div><p>'
         except:
-            pass
+            #sometime the finals table won't exist so the table won't generate. It needs to be closed properlu
+            responsetext += '</div><p>'
         
         #Build the table of individual games
         responsetext +='<table class="table table-dark table-bordered table-striped" id="gamestable"><tr><th onclick="sortTable(0)">Date</th><th onclick="sortTable(1)">Home</th><th onclick="sortTable(2)">Away</th><th onclick="sortTable(3)">Home Score</th><th onclick="sortTable(4)">Away Score</th></tr>'
