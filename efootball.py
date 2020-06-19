@@ -31,6 +31,7 @@ def getgames():
     days = request.args.get('days')
     searchstr = request.args.get('search')
     comp = request.args.get('comp')
+    teams = request.args.get('teams')
 
     if not searchstr == 'None':
         searchfilter = " AND (HOME || AWAY) LIKE '%"+searchstr+"%'"
@@ -38,6 +39,16 @@ def getgames():
     else:
         searchfilter = ''
         labelsuffix = ''
+        
+    if not teams == 'None':
+        teamlen = len(teams.split(','))
+        if teamlen == 1:
+            teamfilter = " AND (HOME IN ("+teams+") OR AWAY IN ("+teams+"))"
+        else:
+            teamfilter = ' AND (HOME IN ('+teams+') AND AWAY IN ('+teams+'))'
+            print(teamfilter)
+    else:
+        teamfilter = ''
     
     finalsheader= 'Finals Games'
     datefilter = "strftime('%s',DATE) > strftime('%s','now','-"+days+" days')"
@@ -48,9 +59,11 @@ def getgames():
             STAGE,
             CAST(strftime("%s",DATE) AS INTEGER) AS TIMESTAMP
             FROM MATCHES
-            WHERE ("""+datefilter + searchfilter + """ AND HOME NOT LIKE "%,%")
+            WHERE ("""+datefilter + searchfilter + teamfilter + """ AND HOME NOT LIKE "%,%")
             ORDER BY DATE DESC"""
-            
+    
+    print('making request')
+    
     if comp == '1':
         dbpath = './eFootball/efootball.db'
         #datefilter = "strftime('%s',DATE) BETWEEN strftime('%s','now','-"+days+" days') AND strftime('%s','now')"
@@ -131,7 +144,7 @@ def getgames():
         #try:
         responsetext += '<div id="ladder" class="text-center center-block"><h2>Table - Group Games</h2><p>'
         grouptable = build_table(table[table['STAGE']=='Group Stage'])
-        responsetext += add_onclick(grouptable.to_html()) + '<p>'
+        responsetext += grouptable.to_html() + '</div><p>'
         #except:
         #    pass
         try:
@@ -139,7 +152,7 @@ def getgames():
             responsetext += f'<h2>Table - {finalsheader}</h2><p><div id="finalsladder" class="text-center center-block">'
             #Build a table of the finals games
             finaltable = build_table(table[table['STAGE']!='Group Stage'])
-            responsetext += add_onclick(finaltable.to_html()) + '</div><p>'
+            responsetext += finaltable.to_html() + '</div><p>'
         except:
             #sometime the finals table won't exist so the table won't generate. It needs to be closed properlu
             responsetext += '</div><p>'
@@ -160,7 +173,7 @@ def getgames():
         responsetext += '</table></div>'
     
     conn.close()    
-
+        
     return responsetext
 
 
@@ -172,6 +185,22 @@ def getdbupdatetime():
 
 def build_table(df,season=None):
 
+    class Median:
+        def __init__(self,ls):
+            self.data = {}
+            #initialise each team with an empty list
+            for i in ls:
+                self.data[i] = []
+            
+        def insert(self,player,val):
+                self.data[player].append(val)
+
+        def calc_medians(self):
+            self.medians = {}
+            for player in self.data.keys():
+                self.medians[player] = np.median(self.data[player])
+ 
+    
     #Build table of unique teams
     teams = get_unique_values_from_column(df,['HOME','AWAY'])
     #Remove duplicates
@@ -182,6 +211,7 @@ def build_table(df,season=None):
     #Initialise dataframe
     table = pd.DataFrame(index=teams,data={'P':zero_column,'W':zero_column,'D':zero_column,'L':zero_column,'F':zero_column,'A':zero_column,'+/-':zero_column,'Pts':zero_column,'GD Per Game':zero_column,'Win %':zero_column,'Rating':zero_column})
   
+    median = Median(teams)
     
     for i in df.index:
         this_game = df.loc[i]
@@ -212,15 +242,29 @@ def build_table(df,season=None):
         table.at[this_game['AWAY'],'Pts'] += points[1]
         table.at[this_game['AWAY'],'+/-'] += a_s-h_s
         
+        median.insert(this_game['HOME'],h_s-a_s)
+        median.insert(this_game['AWAY'],a_s-h_s)
+        
     table['GD Per Game'] = (table['F']-table['A'])/table['P']
     
+    
     table['Win %'] = (table['W']/table['P'])*100
+    
+    #do some work on the medians
+    median.calc_medians()
     
     #Also provide a combined GD using win % as a regressor
     xs = table['Win %'].dropna().values
     ys = table['GD Per Game'].dropna().values
+    
+    
     slope, intercept, _, _, _ = stats.linregress(xs,ys)
     table['Rating'] = (table['GD Per Game']+(table['Win %']*slope+intercept))/2
+    
+    #include medians in the rating
+    for team in teams:
+        table.at[team,'Rating'] = (table.at[team,'Rating'] + median.medians[team]) / 2
+
     
     table = table.round(2)
     

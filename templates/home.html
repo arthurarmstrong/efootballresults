@@ -65,7 +65,6 @@
 
       </div>
 
-
     </div>
     <div class = 'text-light bg-dark' id="dbupdated"></div>
     <div class='text-light bg-dark'>E-Football Results, by Gerard Armstrong (2020)</div>
@@ -90,30 +89,55 @@
     </div>
   </div>
 </div>
+
+<div class="modal fade" id="subgroupdialog" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Grouped Player Stats</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body modaloverwrite">
+        <p></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
 <!---->
 
   </body>
   </html>
   <script>
 
-    function getgames() {
-
+    function getgames(subcomp=false) {
 
       var xhttp;
       xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
-          document.getElementById("games").innerHTML = this.responseText;
+          resp = this.responseText;
 
-      //Put a header for the results table
-      $('#gamestable').before('<h2>Results</h2>')
-      //Do some formatting on the ladder table
-      $('#ladder table').addClass('table table-bordered table-striped')
-      $('th').addClass('text-center')
+        if (subcomp == false ) {
+          
+         $('#games').html(resp)
+         $('#ladder').find('tr').filter( function () {$(this).attr('onclick','h2h(this)')})
+      
+        //Put a header for the results table
+        $('#gamestable').before('<h2>Results</h2>')
+        //Do some formatting on the ladder table
+        $('#ladder table').addClass('table table-bordered table-striped')
+        $('th').addClass('text-center')
 
-      //Clear the search box text
-      $('#search').val('')
-      $('#search').attr('placeholder','Search and press enter to submit')
+        //Clear the search box text
+        $('#search').val('')
+        $('#search').attr('placeholder','Search and press enter to submit')  
+
+    } else {document.getElementsByClassName('modaloverwrite')[0].innerHTML = resp} 
 
     }
   };
@@ -122,10 +146,20 @@
   var searchstr = document.getElementById('search').value
   if (searchstr == '') {searchstr='None'}
 
+  teams = ''
+  sel_teams = $('.h2hsel').toArray()
+  if (sel_teams.length > 0) {
+  for (i in sel_teams) {
+    teams = teams + '"' + sel_teams[i].children[0].textContent+ '"' + ','
+  }               
+  teams = teams.substr(0,teams.length-1)} else {teams='None'}
+
   var comp = document.getElementById('compselect').value
-    xhttp.open("GET", "getgames.php?days="+document.getElementById('daystoshow').value+"&search="+searchstr+"&comp="+comp, true);
+
+  xhttp.open("GET", "getgames.php?days="+document.getElementById('daystoshow').value+"&search="+searchstr+"&comp="+comp+"&teams="+teams, true);
   xhttp.send();
-  $
+
+  return resp
 }
 
 function getLog() {

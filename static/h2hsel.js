@@ -118,7 +118,7 @@ return {'AH':AH,'avetot':avetot, 'p1m':p1m,'p2m':p2m,'p1f':p1f,'p1a':p1a,'p2f':p
 
 function h2h(tr) {
 
-	num_selected = $('.h2hsel').length
+num_selected = $('.h2hsel').length
 
 
   //if it has the class, toggle off
@@ -127,14 +127,16 @@ function h2h(tr) {
   	$('.h2hsel').removeAttr('data-html');
   	$('.h2hsel').removeAttr('data-original-title');
   	$('.h2hsel').removeAttr('title');
+  	$('.h2hsel').removeAttr('onmouseover');
 
   	$(tr).toggleClass('h2hsel');
   } else {
 
-  	if (num_selected < 2) {
   		$(tr).toggleClass('h2hsel')
-  	}
+  		$('.h2hsel > th').filter(function () { $(this).attr('onmouseover','toolTipTable()')})
   }
+
+  
 
   selected = $('.h2hsel')
   num_selected = selected.length
@@ -143,15 +145,24 @@ function h2h(tr) {
   	p2 = $(selected[1])[0].children[0].textContent
 
   	h2hdata = handicapper(p1,p2);
+
   	updateH2HStats(h2hdata,p1,p2,selected);
 
-  	$('#h2hdata').show();
+}
 
-  } else {
-  	$('#h2hdata').hide()
-  	$('#h2hcomparison').remove()
+}
 
-  }
+function toolTipTable() {
+
+	//get a table of the subcomp requested
+  	resp = getgames(true);
+  	console.log(resp)
+	document.getElementsByClassName('modaloverwrite')[0].innerHTML = resp
+	$('#subgroupdialog').first('.modaloverwrite').css('background-color','white');
+	$('#subgroupdialog').click(function () {$('#subgroupdialog').modal('hide')});
+	$('#subgroupdialog').modal('show');
+
+			
 }
 
 function updateH2HStats(h2h,p1,p2,sel) {
@@ -225,3 +236,52 @@ function updateH2HStats(h2h,p1,p2,sel) {
 		return {'p':tds[0],'mp':tds[1],'W':tds[2],'D':tds[3],'L':tds[4],'F':tds[5],'A':tds[6],'pm':tds[7],'GD':tds[9],'winperc':tds[10],'rating':tds[11]}
 
 		}
+
+function ahBetaSmooth() {
+	/*
+	a is a parameter that weights how much of the player's overall form to use
+	It should be an integer that forces their overall form to decay - specifically it is the number of games
+	after which the form has a percentage weighting of 1/e
+	b is a similar parameter when there is no existing form.
+	*/
+	a = 3
+	b = 10
+
+	players = getPlayers();
+
+
+}
+
+function getPlayers() {
+	players = []
+
+	$('#ladder > table > tbody > tr').filter(function () {
+		players[players.length] = $(this)[0].children[0].textContent
+
+	})
+
+	return players
+}
+
+function getAveScore() {
+
+	players = getPlayers();
+	total = 0
+	count = 0
+
+	var i = 0
+
+	for (i == 0 ; i < players.length ; i++) {
+
+		stats = getPlayerStats(players[i])
+		if (!Number.isNaN(parseInt(stats['mp'])) && stats['mp'] > 0) {
+			total += Number(stats['F'])/Number(stats['mp'])
+			count += 1
+	}
+	}
+
+	//get the average
+	return total/i
+
+
+}

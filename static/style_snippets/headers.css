@@ -51,3 +51,5 @@ background-color: yellow !important;
     bottom: -20px;
     top: auto;
   }
+
+  button #opensubgroupdialog { position: fixed; bottom: 0px; right: 0px; }
