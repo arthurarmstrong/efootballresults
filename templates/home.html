@@ -137,7 +137,11 @@
         $('#search').val('')
         $('#search').attr('placeholder','Search and press enter to submit')  
 
-    } else {document.getElementsByClassName('modaloverwrite')[0].innerHTML = resp} 
+    } else {
+      document.getElementsByClassName('modaloverwrite')[0].innerHTML = resp
+      $('#subgroupdialog').find('h2:contains(Finals Games)').remove()
+      $('#subgroupdialog').find('#finalsladder').remove()
+    } 
 
     }
   };
