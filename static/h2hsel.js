@@ -22,6 +22,8 @@ function handicapper(p1=null,p2=null,mode='h2h') {
 	var p2w = 0;
 	var p2d = 0;
 	var p2l = 0;
+	var p1fa = []
+	var p2fa = []
 
 	//get all games, either the total, or h2h subset
 	if (mode!='h2h') {
@@ -54,6 +56,8 @@ function handicapper(p1=null,p2=null,mode='h2h') {
 				p2a += homescr
 				p1m += 1
 				p2m += 1
+				p1fa[p1fa.length] = homescr - awayscr
+				p2fa[p2fa.length] = awayscr - homescr
 
 				if (homescr > awayscr) { p1w+=1; p2l+=1;} else if ( homescr == awayscr ) {p1d += 1; p2d += 1;} else if (awayscr > homescr) { p2w += 1; p1l += 1;}
 			}
@@ -65,6 +69,8 @@ function handicapper(p1=null,p2=null,mode='h2h') {
 				p2a += awayscr
 				p1m += 1
 				p2m += 1
+				p2fa[p2fa.length] = homescr - awayscr
+				p1fa[p1fa.length] = awayscr - homescr
 
 				if (homescr > awayscr) { p2w+=1; p1l+=1;} else if ( homescr == awayscr ) {p1d += 1; p2d += 1;} else if (awayscr > homescr) { p1w += 1; p2l += 1;}
 			}
@@ -74,6 +80,7 @@ function handicapper(p1=null,p2=null,mode='h2h') {
 				p1f += homescr
 				p1a += awayscr
 				p1m += 1
+				p1fa[p1fa.length] = homescr - awayscr
 
 				if (homescr > awayscr) { p1w+=1} else if ( homescr == awayscr ) {p1d += 1;} else if (awayscr > homescr) {p1l += 1;}
 			}
@@ -81,6 +88,7 @@ function handicapper(p1=null,p2=null,mode='h2h') {
 				p2f += homescr
 				p2a += awayscr
 				p2m += 1
+				p1fa[p1fa.length] = awayscr - homescr
 
 				if (homescr > awayscr) { p2w+=1} else if ( homescr == awayscr ) {p2d += 1;} else if (awayscr > homescr) {p2l += 1;}
 			}
@@ -88,6 +96,7 @@ function handicapper(p1=null,p2=null,mode='h2h') {
 				p1f += awayscr
 				p1a += homescr
 				p1m += 1
+				p2fa[p2fa.length] = awayscr - homescr
 
 				if (awayscr > homescr) { p1w+=1} else if ( homescr == awayscr ) {p1d += 1;} else if (homescr > awayscr) {p1l += 1;}
 			}
@@ -95,6 +104,7 @@ function handicapper(p1=null,p2=null,mode='h2h') {
 				p2f += awayscr
 				p2a += homescr
 				p2m += 1
+				p2fa[p2fa.length] = homescr - awayscr
 
 				if (awayscr > homescr) { p2w+=1} else if ( homescr == awayscr ) {p2d += 1;} else if (homescr > awayscr) {p2l += 1;}
 			}
@@ -107,13 +117,17 @@ function handicapper(p1=null,p2=null,mode='h2h') {
 
 //work out the average handicap and total
 AH = (p1f-p1a)/p1m-(p2f-p2a)/p2m;
+p1medfa = median(p1fa)
+p2medfa = median(p2fa)
+console.log('p1medfa',p1medfa,'p2medfa',p2medfa)
+//AH = (AH + p1medfa-p2medfa)/2
 if (mode=='h2h'){AH/=2};
 AH = Math.round(AH*100)/100;
 
 avetot = ((p1f+p1a)/p1m+(p2f+p2a)/p2m)/2;
 avetot = Math.round(avetot*100)/100;	
 
-return {'AH':AH,'avetot':avetot, 'p1m':p1m,'p2m':p2m,'p1f':p1f,'p1a':p1a,'p2f':p2f,'p2a':p2a,'p1w':p1w,'p1d':p1d,'p1l':p1l,'p2w':p2w,'p2d':p2d,'p2l':p2l,'mode':mode};
+return {'AH':AH,'avetot':avetot, 'p1m':p1m,'p2m':p2m,'p1f':p1f,'p1a':p1a,'p2f':p2f,'p2a':p2a,'p1w':p1w,'p1d':p1d,'p1l':p1l,'p2w':p2w,'p2d':p2d,'p2l':p2l,'mode':mode,'p1medfa':p1medfa,'p2medfa':p2medfa};
 }
 
 function h2h(tr) {
@@ -127,7 +141,7 @@ num_selected = $('.h2hsel').length
   	$('.h2hsel').removeAttr('data-html');
   	$('.h2hsel').removeAttr('data-original-title');
   	$('.h2hsel').removeAttr('title');
-  	$('.h2hsel').removeAttr('onmouseover');
+  	$('.h2hsel > th').removeAttr('onmouseover');
 
   	$(tr).toggleClass('h2hsel');
   } else {
@@ -156,8 +170,7 @@ function toolTipTable() {
 
 	//get a table of the subcomp requested
   	resp = getgames(true);
-  	console.log(resp)
-	document.getElementsByClassName('modaloverwrite')[0].innerHTML = resp
+	
 	$('#subgroupdialog').first('.modaloverwrite').css('background-color','white');
 	$('#subgroupdialog').click(function () {$('#subgroupdialog').modal('hide')});
 	$('#subgroupdialog').modal('show');
@@ -176,11 +189,13 @@ function updateH2HStats(h2h,p1,p2,sel) {
 		if (AH < 0) { pm = '+'} else if (AH > 0) { pm = '-' } else { pm = ''}
 
 			if (h2h['p1m'] >= 0 && h2h['p2m']) {
-				tooltip = `These two teams have played ${h2h['p1m']} times in the requested timeframe.<p>
+				tooltip = `${p1} and ${p2} have played ${h2h['p1m']} times in the requested timeframe.<p>
 
 				<p>The W/D/L record for ${p1} is ${h2h['p1w']}/${h2h['p1d']}/${h2h['p1l']}.<p>
 
-				${fav}'s average winning margin is ${Math.abs(h2h['AH'])} goals.<p>The average total is ${h2h['avetot']}.<p>
+				${fav}'s average winning margin is ${Math.abs(h2h['AH'])} goals.<p>				
+
+				<p>The average total is ${h2h['avetot']}.<p>
 
 				Suggested AH: ${p1} ${pm}${Math.abs(AH)} at ${price}.`
 
@@ -285,3 +300,9 @@ function getAveScore() {
 
 
 }
+
+const median = arr => {
+  const mid = Math.floor(arr.length / 2),
+    nums = [...arr].sort((a, b) => a - b);
+  return arr.length % 2 !== 0 ? nums[mid] : (nums[mid - 1] + nums[mid]) / 2;
+};

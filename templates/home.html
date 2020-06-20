@@ -81,7 +81,7 @@
         </button>
       </div>
       <div class="modal-body">
-        <p>You can now compare players by clicking on two names in the table.</p><p>Once selected, when you hover over the names it will give you H2H player stats.</p>
+        <p>You can now compare players by clicking on names in the table.</p><p>Hover over a name when you're done selecting players.</p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Got it</button>
@@ -141,6 +141,8 @@
       document.getElementsByClassName('modaloverwrite')[0].innerHTML = resp
       $('#subgroupdialog').find('h2:contains(Finals Games)').remove()
       $('#subgroupdialog').find('#finalsladder').remove()
+      $('#subgroupdialog').find('#overunder').first('tr').remove()
+      $('#subgroupdialog').find('h2').remove()
     } 
 
     }

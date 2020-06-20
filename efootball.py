@@ -46,7 +46,6 @@ def getgames():
             teamfilter = " AND (HOME IN ("+teams+") OR AWAY IN ("+teams+"))"
         else:
             teamfilter = ' AND (HOME IN ('+teams+') AND AWAY IN ('+teams+'))'
-            print(teamfilter)
     else:
         teamfilter = ''
     
@@ -61,8 +60,6 @@ def getgames():
             FROM MATCHES
             WHERE ("""+datefilter + searchfilter + teamfilter + """ AND HOME NOT LIKE "%,%")
             ORDER BY DATE DESC"""
-    
-    print('making request')
     
     if comp == '1':
         dbpath = './eFootball/efootball.db'
