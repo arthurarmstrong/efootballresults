@@ -59,8 +59,8 @@ def main():
             try:
                 if 'channel' in row[4]:         
                     
-                    hometeam = re.findall('\(.*\)',row[1])[0].strip('()')
-                    awayteam = re.findall('\(.*\)',row[3])[0].strip('()')
+                    hometeam = re.findall('\(.*\)',row[1])[0].strip('()').replace('С','C')
+                    awayteam = re.findall('\(.*\)',row[3])[0].strip('()').replace('С','C')
                     
                     try:
                         #Discard any 1st half data in case it accidentally gets parsed
