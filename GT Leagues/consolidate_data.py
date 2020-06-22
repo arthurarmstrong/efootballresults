@@ -88,8 +88,6 @@ def consolidate_data(all_games,p=0.32,method='fuzzywuzzy'):
         
     print('Consolidating data. Looking for teams with similar sounding names...')
     
-    donotask = pd.read_csv('donotask.csv',header=None)
-    
     unique_teams = set(all_games['HOME'].values).union(set(all_games['AWAY'].values))
 
     common_words = get_common_words()
@@ -97,10 +95,6 @@ def consolidate_data(all_games,p=0.32,method='fuzzywuzzy'):
     if common_words: print('Common words that will be ignored:',', '.join([x for x in common_words]))
     
     remaining = set(all_games['HOME'].values).union(set(all_games['AWAY'].values))
-    chosen_names = set()
-    
-    #Create a record of whether the console has beeped to make sure it only does it once
-    already_beeped = False
     
     while remaining:
         t = remaining.pop()
@@ -110,57 +104,8 @@ def consolidate_data(all_games,p=0.32,method='fuzzywuzzy'):
                 
                 if i[0] not in unique_teams or i[1] not in unique_teams: continue
             
-                if is_in_dna(donotask,tuple([i[0],i[1]])): continue
-            
-                while True:
-                    
-                    if not already_beeped:
-                        winsound.Beep(650,700)
-                        already_beeped = True
-                        
-                    is_same = input('Same? y/n '+str(i)+' : ')
-                
-                    if is_same == 'y':
-                        while True:
-                            if i[0] in chosen_names:
-                                all_games['HOME'].replace(i[1],i[0],inplace=True)
-                                all_games['AWAY'].replace(i[1],i[0],inplace=True)
-                                unique_teams.remove(i[1])
-                                break
-                            if i[1] in chosen_names:
-                                all_games['HOME'].replace(i[0],i[1],inplace=True)
-                                all_games['AWAY'].replace(i[0],i[1],inplace=True)
-                                unique_teams.remove(i[0])
-                                break
-                            else:
-                                resp = input('Enter 1 to keep the first name. Enter 2 to keep the second name: ')
-                            
-                                if resp == '1':
-                                    all_games['HOME'].replace(i[1],i[0],inplace=True)
-                                    all_games['AWAY'].replace(i[1],i[0],inplace=True)
-                                    all_games['GAME ID'].replace(i[1],i[0],inplace=True)
-                                    chosen_names.add(i[0])
-                                    unique_teams.remove(i[1])
-                                    break
-                                    
-                                if resp == '2':
-                                    all_games['HOME'].replace(i[0],i[1],inplace=True)
-                                    all_games['AWAY'].replace(i[0],i[1],inplace=True)
-                                    all_games['GAME ID'].replace(i[0],i[1],inplace=True)
-                                    chosen_names.add(i[1])
-                                    unique_teams.remove(i[0])
-                                    break
-                            
-                                if resp == 'q':
-                                    break
-                        break
-                    if is_same == 'n':
-                        donotask = donotask.append({0:i[0],1:i[1]},ignore_index=True)
-                        break
-                    
-                    if is_same == 'q':
-                        donotask.to_csv('donotask.csv',header=False,index=False)
-                        return all_games
-    
-    donotask.to_csv('donotask.csv',header=False,index=False)
+                all_games['HOME'].replace(i[1],i[0],inplace=True)
+                all_games['AWAY'].replace(i[1],i[0],inplace=True)
+                unique_teams.remove(i[1])
+
     return all_games

@@ -26,7 +26,7 @@ def main(tourn_id):
         if page.find('table',{'class':'table--lg'}):
             if page.find('table',{'class':'table--lg'}).text: break
         
-    comp = page.find('small').text    
+    comp = page.find('small').text.replace('\\n','')    
     stage = 'Group Stage'
     
     existing_games = opendf(f'FUFV/{comp}')

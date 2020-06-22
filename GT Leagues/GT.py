@@ -36,7 +36,7 @@ def main():
         existing_games = get_data_from_table(page,existing_games,season)
         
         if check_for_dupes(existing_games):
-            print('dupes found)
+            print('dupes found')
             break
         
     existing_games.drop_duplicates(subset=['GAME ID'],inplace=True,keep='last')
