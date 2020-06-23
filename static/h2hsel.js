@@ -162,6 +162,9 @@ num_selected = $('.h2hsel').length
 
   	updateH2HStats(h2hdata,p1,p2,selected);
 
+}	else {
+	$('tr').removeAttr('title')
+	$('tr').removeAttr('data-original-title'); 
 }
 
 if (num_selected == 0) {$('#compare_selected').hide()} else {$('#compare_selected').show()}
