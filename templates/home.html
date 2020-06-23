@@ -72,7 +72,7 @@
     <div class = 'text-light bg-dark' id="dbupdated"></div>
     <div class='text-light bg-dark'>E-Football Results, by Gerard Armstrong (2020)</div>
 
-    <nav class="navbar fixed-bottom" id="compare_selected">
+    <nav class="navbar fixed-bottom" id="compare_selected" style="display:none">
       <div class="container">
         <button onclick="toolTipTable()">Compare Selected Players</button><button onclick="clearSelected()">Clear Selected Players</button>
       </div>
@@ -284,7 +284,6 @@ document.getElementById('search').addEventListener("keyup", function(event) {
 
 $(window).on('load',function(){
         $('#dialog').modal('show');
-        $('#compare_selected').hide();
     });
 
 </script>

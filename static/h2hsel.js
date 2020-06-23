@@ -311,6 +311,7 @@ const median = arr => {
 
 function clearSelected() {
 
-	$('.h2hsel').removeClass('h2hsel')
+	$('.h2hsel').removeClass('h2hsel');
+	$('#compare_selected').hide();
 
 }
