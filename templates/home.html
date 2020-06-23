@@ -41,6 +41,9 @@
               <option value="10">Pro Player Cup - XBox</option>
               <option value="12">GT Leagues</option>
               <option value="11">Futhead TNF - 1st/2nd Legs Aggregated</option>
+              <option value="13">ANFV Chile Primera Division</option>
+              <option value="14">ANFV Chile Segunda Division</option>
+              <option value="15">ANFV Chile Tercera Division</option>
             </select>
           </div>
           <div class="slidecontainer nav-item"><span class="form-control">Showing games for last <strong id="dayslabel"></strong> days. Use the slider below to change.</span>
@@ -68,6 +71,12 @@
     </div>
     <div class = 'text-light bg-dark' id="dbupdated"></div>
     <div class='text-light bg-dark'>E-Football Results, by Gerard Armstrong (2020)</div>
+
+    <nav class="navbar fixed-bottom" id="compare_selected">
+      <div class="container">
+        <button onclick="toolTipTable()">Compare Selected Players</button><button onclick="clearSelected()">Clear Selected Players</button>
+      </div>
+    </nav>
 
 
 <!--page load dialog.-->
@@ -275,6 +284,7 @@ document.getElementById('search').addEventListener("keyup", function(event) {
 
 $(window).on('load',function(){
         $('#dialog').modal('show');
+        $('#compare_selected').hide();
     });
 
 </script>

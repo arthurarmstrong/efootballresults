@@ -91,6 +91,12 @@ def getgames():
         dbpath = './futhead_tnf/TNF.db'
     elif comp =='12':
         dbpath = './GT Leagues/GT.db'
+    elif comp =='13':
+        dbpath = 'FUFV/Primera Division.db'
+    elif comp =='14':
+        dbpath = 'FUFV/Segunda Division.db'
+    elif comp =='15':
+        dbpath = 'FUFV/Tercera Division.db'
     else:
         return ''
     

@@ -147,7 +147,7 @@ num_selected = $('.h2hsel').length
   } else {
 
   		$(tr).toggleClass('h2hsel')
-  		$('.h2hsel > th').filter(function () { $(this).attr('onmouseover','toolTipTable()')})
+  		//$('.h2hsel > th').filter(function () { $(this).attr('onmouseover','toolTipTable()')})
   }
 
   
@@ -163,6 +163,8 @@ num_selected = $('.h2hsel').length
   	updateH2HStats(h2hdata,p1,p2,selected);
 
 }
+
+if (num_selected == 0) {$('#compare_selected').hide()} else {$('#compare_selected').show()}
 
 }
 
@@ -218,7 +220,7 @@ function updateH2HStats(h2h,p1,p2,sel) {
 			if (mod < 0) { pm = -1 } else { pm = 1 }
 
 				root = Math.round((AH - mod)*100)/100;
-			price = '$1.90'
+				price = '$1.90'
 
 			mod = Math.abs(mod);
 			if (mod  > 0.25/5 * 1 ) {price='$1.85'}
@@ -306,3 +308,9 @@ const median = arr => {
     nums = [...arr].sort((a, b) => a - b);
   return arr.length % 2 !== 0 ? nums[mid] : (nums[mid - 1] + nums[mid]) / 2;
 };
+
+function clearSelected() {
+
+	$('.h2hsel').removeClass('h2hsel')
+
+}
