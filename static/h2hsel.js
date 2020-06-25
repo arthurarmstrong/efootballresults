@@ -1,12 +1,12 @@
 
 function handicapper(p1=null,p2=null,mode='h2h') {
 
-	if (p1 != null) { 
-		p1 = p1.replace('(','\\\\(').replace(')','\\\\)')
-	}
-	if (p2 != null) { 
-		p2 = p2.replace('(','\\\\(').replace(')','\\\\)')
-	}
+	//if (p1 != null) { 
+	//	p1 = p1.replace('(','\\\\(').replace(')','\\\\)')
+	//}
+	//if (p2 != null) { 
+	//	p2 = p2.replace('(','\\\\(').replace(')','\\\\)')
+	//}
 	
 
 
@@ -31,7 +31,7 @@ function handicapper(p1=null,p2=null,mode='h2h') {
 	}
 	else {
 
-		fil = $('#gamestable > tbody > tr:contains('+p1+'):contains('+p2+')') }
+		fil = $('#gamestable > tbody > tr:contains("'+p1+'"):contains("'+p2+'")') }
 
 	//filter to force exact string match rather than loosely contains
 	fil2 = fil.filter(function () { 
