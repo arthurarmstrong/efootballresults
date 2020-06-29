@@ -121,6 +121,8 @@ def consolidate_data(all_games,p=0.32,method='fuzzywuzzy'):
                     
                     #is_same = input('Same? y/n '+str(i)+' : ')
                 all_games['HOME'].replace(i[1],i[0],inplace=True)
+                all_games['AWAY'].replace(i[1],i[0],inplace=True)
+                all_games['GAME ID'].replace(i[1],i[0],inplace=True)
                     #if is_same == 'y':
                     #    while True:
                     #        if i[0] in chosen_names:
