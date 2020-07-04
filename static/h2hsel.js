@@ -189,7 +189,13 @@ function updateH2HStats(h2h,p1,p2,sel) {
 	AH = price[0]
 	price = price[1]
 
-	if (h2h['AH'] > 0) {fav = p1} else {fav = p2}
+	if (h2h['AH'] > 0) {
+			fav = p1
+			console.log('Set fav to P1',h2h['AH'])
+		} else {
+			fav = p2
+			console.log('Set fav to P2',h2h['AH'])
+		}
 
 		if (AH < 0) { pm = '+'} else if (AH > 0) { pm = '-' } else { pm = ''}
 
