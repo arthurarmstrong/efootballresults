@@ -49,9 +49,11 @@ def main(browser=None):
         df = consolidate_data(df)
         df.drop_duplicates(subset=['DATE','HOME','AWAY'],inplace=True,keep='last')
         
+        df.drop(columns='ARTICLE_DATE',inplace=True)
+        
         conn = connect_to_database('eSportsBattle/esportsbattle.db')
         #Send it to the database
-        df.to_sql('MATCHES',conn,if_exists='replace',index=False)
+        df.to_sql('MATCHES',con=conn,if_exists='replace',index=False)
         df.to_pickle('eSportsBattle/esportsbattle')
         
         #Close up
@@ -118,30 +120,27 @@ def get_results(browser):
         article_date = get_date(article)
         
         #article_date will return false if a date is not parsed
-        if article_date:
-            gamedate = get_game_date(article)
-            for r in article.find_all('div',{'dir':'auto'}):
-                gametime = re.findall('[0-9]+:[0-9]{2}',r.text[:5])
-                if gametime:
-                    
-                    gametime = gametime[0]
-                    
-                    teams = get_teams(r)
-                    if not teams:
-                        print('Problem getting team names')
-                        continue
-                    hometeam,awayteam = teams
-                    if 'such' in hometeam or 'such' in awayteam: print(r.text)
-                    homeplayingas,awayplayingas = get_playing_as(r)
-                    
-                    #If there was an error parsing names, skip
-                    if not homeplayingas or not awayplayingas: continue
+        #if article_date:
+        gamedate = get_game_date(article)
+        for r in article.find_all('div',{'dir':'auto'}):
+            gametime = re.findall('[0-9]+:[0-9]{2}',r.text[:5])
+            if gametime:
+                gametime = gametime[0]
                 
-                    homescore, awayscore = get_score(r.text)
-                    
-                    #Turn these returned values into a dictionary and append to the list of games
-                    games.append({'ARTICLE_DATE':article_date,'GAME_DATE':gamedate, 'TIME':gametime, 'HOME':hometeam,'AWAY':awayteam,'HOME SCORE':homescore,'AWAY SCORE':awayscore,'HOME_PLAYING_AS':homeplayingas,'AWAY_PLAYING_AS':awayplayingas,'STAGE':'Group Stage'})
-                    
+                teams = get_teams(r)
+                if not teams:
+                    print('Problem getting team names')
+                    continue
+                hometeam,awayteam = teams
+                if 'such' in hometeam or 'such' in awayteam: print(r.text)
+                homeplayingas,awayplayingas = get_playing_as(r)
+                #If there was an error parsing names, skip
+                if not homeplayingas or not awayplayingas: continue
+                homescore, awayscore = get_score(r.text)
+                
+                #Turn these returned values into a dictionary and append to the list of games
+                #games.append({'ARTICLE_DATE':article_date,'GAME_DATE':gamedate, 'TIME':gametime, 'HOME':hometeam,'AWAY':awayteam,'HOME SCORE':homescore,'AWAY SCORE':awayscore,'HOME_PLAYING_AS':homeplayingas,'AWAY_PLAYING_AS':awayplayingas,'STAGE':'Group Stage'})
+                games.append({'ARTICLE_DATE':'Unknown','GAME_DATE':gamedate, 'TIME':gametime, 'HOME':hometeam,'AWAY':awayteam,'HOME SCORE':homescore,'AWAY SCORE':awayscore,'HOME_PLAYING_AS':homeplayingas,'AWAY_PLAYING_AS':awayplayingas,'STAGE':'Group Stage'})
         else:
             continue
         
@@ -213,7 +212,7 @@ def get_teams(r):
             return False
         return teams[:2]
 
-def openBrowser(headless=True):
+def openBrowser(headless=False):
     
     chrome_options = Options()
     if headless == True:
