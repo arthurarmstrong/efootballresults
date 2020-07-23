@@ -82,7 +82,7 @@ def getgames():
     elif comp =='7':
         dbpath = './eligamx/eligamx-Torneo de eLiga MX.db'
     elif comp =='8':
-        dbpath = './Cyberleagues/master.db'
+        dbpath = './Cyberleagues/master2.db'
     elif comp =='9':
         dbpath = './BR/Electronic LeaguesPro Player Cup - PS4.db'
     elif comp =='10':
