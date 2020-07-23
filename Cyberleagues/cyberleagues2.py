@@ -10,7 +10,7 @@ from bs4 import BeautifulSoup as BS
 
 def main():
     
-    browser = openBrowser(headless=False)
+    browser = openBrowser(headless=True)
     browser.get('http://stats.cyberarena.live/results.aspx?tab=fifa')
     
     default_days_to_go_back = 100
