@@ -185,9 +185,9 @@ def get_date(article):
     
 def get_score(r):
     
-    score = re.findall(' [0-9]+:[0-9]+',r)
+    score = re.findall('\) [0-9]+:[0-9]+',r)
     if score:
-        score = score[0].replace(' ','')
+        score = score[0].replace(') ','')
     else:
         return np.nan,np.nan
 
