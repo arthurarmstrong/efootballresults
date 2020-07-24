@@ -67,7 +67,7 @@ def main(browser=None):
         print ('Did not complete clicking buttons.')
         return None
     
-def click_seemore_buttons(browser,count_limit=1000):
+def click_seemore_buttons(browser,count_limit=100):
     
     counter = 0
     
