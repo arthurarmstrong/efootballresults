@@ -19,7 +19,7 @@ def main(browser=None):
     #get an instance of chrome going
     if not browser:
         browser =  openBrowser(headless=True)
-        browser.get('https://www.facebook.com/esportsbattle')
+        browser.get('https://www.facebook.com/esbfifa')
     else:
         pass
     
@@ -67,7 +67,7 @@ def main(browser=None):
         print ('Did not complete clicking buttons.')
         return None
     
-def click_seemore_buttons(browser,count_limit=100):
+def click_seemore_buttons(browser,count_limit=1000):
     
     counter = 0
     
@@ -77,6 +77,9 @@ def click_seemore_buttons(browser,count_limit=100):
         while True:
             
             seemore = browser.find_elements_by_xpath("//*[contains(text(), 'See More')]")
+            #weed out the top posts which take you to another page
+            seemore = [x for x in seemore if x.get_attribute('role')]
+            
             
             if not seemore:
                 browser.find_element_by_xpath('//body').send_keys(Keys.CONTROL+Keys.END)
@@ -135,7 +138,9 @@ def get_results(browser):
                 if 'such' in hometeam or 'such' in awayteam: print(r.text)
                 homeplayingas,awayplayingas = get_playing_as(r)
                 #If there was an error parsing names, skip
-                if not homeplayingas or not awayplayingas: continue
+                if not homeplayingas or not awayplayingas:
+                    print('Didnt find FIFA team name. Skipping')
+                    continue
                 homescore, awayscore = get_score(r.text)
                 
                 #Turn these returned values into a dictionary and append to the list of games
