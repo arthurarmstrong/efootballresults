@@ -29,8 +29,11 @@ def main(browser=None):
     #refresh the page for login
     browser.refresh()
 
+    #click on all the posts that contain the new format fixtures
+    
+
     #click all the buttons that say 'See More'
-    browser, click_completed = click_seemore_buttons(browser)
+    browser, click_completed, posted_notes = click_seemore_buttons(browser)
     #save the page in case we want it again later
     #pickle.dump(BS(browser.page_source,'html.parser'),open('page.pkl','wb'))
     
@@ -41,6 +44,8 @@ def main(browser=None):
         #Use Beautiful Soup and Pandas to bring in the info
         df = get_results(browser)
         df = pd.concat([df,existing_results],ignore_index=True,sort=False)
+        new_format_results = get_posted_note_results(browser)
+        df = pd.concat([new_format_results,df],ignore_index=True,sort=False)
         
         #Create date timestamps
         df = make_timestamps(df)
@@ -67,7 +72,73 @@ def main(browser=None):
         print ('Did not complete clicking buttons.')
         return None
     
-def click_seemore_buttons(browser,count_limit=1000):
+def get_posted_note_results(browser):
+    def get_new_results(browser):
+        games = []
+        
+        page  = BS(browser.page_source,'html.parser')
+        
+        #get rid of any translated elements, which seem to be housed in blockquotes
+        for translation in page.find_all('blockquote'):
+            translation.decompose()
+        
+        for article in page.find_all('div',{'class':'_4lmi'}):
+            article_date = get_date(article)
+            
+            #article_date will return false if a date is not parsed
+            #if article_date:
+            gamedate = get_game_date(article)
+            for r in article.find_all('div',{'class':'_2cuy'}):
+                gametime = re.findall('[0-9]+:[0-9]{2}',r.text[:5])
+                if gametime:
+                    gametime = gametime[0]
+                    teams = get_teams(r)
+                    if not teams:
+                        print('Problem getting team names')
+                        continue
+                    hometeam,awayteam = teams
+                    if 'such' in hometeam or 'such' in awayteam: print(r.text)
+                    homeplayingas,awayplayingas = get_playing_as(r)
+                    #If there was an error parsing names, skip
+                    if not homeplayingas or not awayplayingas:
+                        print('Didnt find FIFA team name. Skipping')
+                        continue
+                    
+                    homescore, awayscore = get_score(r.text)
+                    if np.isnan(homescore):
+                        print (f'Posted note - {gamedate} no score in {r.text}')
+                    
+                    #Turn these returned values into a dictionary and append to the list of games
+                    #games.append({'ARTICLE_DATE':article_date,'GAME_DATE':gamedate, 'TIME':gametime, 'HOME':hometeam,'AWAY':awayteam,'HOME SCORE':homescore,'AWAY SCORE':awayscore,'HOME_PLAYING_AS':homeplayingas,'AWAY_PLAYING_AS':awayplayingas,'STAGE':'Group Stage'})
+                    games.append({'ARTICLE_DATE':'Unknown','GAME_DATE':gamedate, 'TIME':gametime, 'HOME':hometeam,'AWAY':awayteam,'HOME SCORE':homescore,'AWAY SCORE':awayscore,'HOME_PLAYING_AS':homeplayingas,'AWAY_PLAYING_AS':awayplayingas,'STAGE':'Group Stage'})
+            else:
+                continue
+            
+        df = pd.DataFrame(data=games)
+        return df
+    
+    master = pd.DataFrame()
+    
+    hrefs = browser.find_elements_by_tag_name('a')
+    hrefs = [a for a in hrefs if '/esportsbattle/' in a.get_attribute('href').lower()]
+    hrefs = [a.get_attribute('href') for a in hrefs]
+    
+    for h in hrefs:
+        browser.get(h)
+        #wait for the frame to load
+        while not browser.find_elements_by_class_name('_4lmi'):
+            try:
+                browser.switch_to.frame(0)
+                break
+            except:
+                pass
+        
+        df = get_new_results(browser)
+        master = pd.concat([master,df],ignore_index=True,sort=False)
+        
+    return master
+    
+def click_seemore_buttons(browser,count_limit=500):
     
     counter = 0
     
@@ -77,6 +148,9 @@ def click_seemore_buttons(browser,count_limit=1000):
         while True:
             
             seemore = browser.find_elements_by_xpath("//*[contains(text(), 'See More')]")
+            
+            posted_notes = [x for x in seemore if x.get_attribute('dir')=='auto']
+            
             #weed out the top posts which take you to another page
             seemore = [x for x in seemore if x.get_attribute('role')]
             
@@ -94,7 +168,7 @@ def click_seemore_buttons(browser,count_limit=1000):
                     if counter % 10 == 0: print (counter)
                     if counter >= count_limit:
                         print('Reached click count limit, returning')
-                        return browser,True    
+                        return browser,True, posted_notes
                 except:
                     #scroll to bottom
                     pass
@@ -102,12 +176,12 @@ def click_seemore_buttons(browser,count_limit=1000):
 
         #Returns a message along with browser saying that all buttons were clicked
         print('Completed clicking all buttons')
-        return browser, True
+        return browser, True, posted_notes
     
     except WebDriverException as err:    
         #return the browser and a message saying that it did not complete successfully
         print (err)
-        return browser, False
+        return browser, False, False
 
 def get_results(browser):
     
@@ -142,6 +216,8 @@ def get_results(browser):
                     print('Didnt find FIFA team name. Skipping')
                     continue
                 homescore, awayscore = get_score(r.text)
+                if np.isnan(homescore):
+                    print (f'Page post - {gamedate} no score in {r.text}')
                 
                 #Turn these returned values into a dictionary and append to the list of games
                 #games.append({'ARTICLE_DATE':article_date,'GAME_DATE':gamedate, 'TIME':gametime, 'HOME':hometeam,'AWAY':awayteam,'HOME SCORE':homescore,'AWAY SCORE':awayscore,'HOME_PLAYING_AS':homeplayingas,'AWAY_PLAYING_AS':awayplayingas,'STAGE':'Group Stage'})
@@ -176,8 +252,7 @@ def get_playing_as(r):
                 
 def get_date(article):
         
-    for a in article.find_all('a',{'href':re.compile('esportsbattle/posts/')}):
-        
+    for a in article.find_all('a',{'href':re.compile('notes/esportsbattle/|esportsbattle/posts')}):
         a = a.text
         try:
             article_date = dateparser.parse(a)
@@ -190,9 +265,9 @@ def get_date(article):
     
 def get_score(r):
     
-    score = re.findall('\) [0-9]+:[0-9]+',r)
-    if score:
-        score = score[0].replace(') ','')
+    score = re.findall('[0-9]+:[0-9]+',r)
+    if len(score) > 1:
+        score = score[1].replace(') ','')
     else:
         return np.nan,np.nan
 
