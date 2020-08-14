@@ -97,6 +97,8 @@ def getgames():
         dbpath = 'FUFV/Segunda Division.db'
     elif comp =='15':
         dbpath = 'FUFV/Tercera Division.db'
+    elif comp =='16':
+        dbpath = './BR/Electronic LeagueseSports Battle.db'
     else:
         return ''
     

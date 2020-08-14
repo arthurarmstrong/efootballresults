@@ -12,6 +12,31 @@ from consolidate_data import consolidate_data
 
 def get_br_results(browser=None,waitForSelections=False,sport='Soccer',catsel='Electronic Leagues',event='Pro Player Cup - PS4'):
         
+    def pull_results(existing_games,browser,weeks=15):
+        ref_timestamp = time.time()
+        
+        for wk in range(weeks):
+            #Set date range  
+            today_time_struct = time.gmtime(ref_timestamp)
+            from_date_struct = time.gmtime(ref_timestamp - 6*24*3600)
+
+            from_date = time.strftime("%Y-%m-%d",from_date_struct)
+            to_date = time.strftime("%Y-%m-%d",today_time_struct)
+            browser.execute_script('document.getElementById("fromDate").value = "'+from_date+'"')
+            browser.execute_script('document.getElementById("toDate").value = "'+to_date+'"')
+            
+            #click search button
+            browser.find_element_by_name('go').click()
+            time.sleep(2)
+            
+            page = BS(browser.page_source,'html.parser')
+            existing_games = get_data_from_table(existing_games,page)
+                    
+            ref_timestamp -= 7*24*3600
+            
+        return existing_games
+    
+    
     while True:
         try:
             #once logged in, click results tab
@@ -53,40 +78,22 @@ def get_br_results(browser=None,waitForSelections=False,sport='Soccer',catsel='E
                 [x for x in catsel_select.find_elements_by_tag_name('option') if x.get_attribute('text') == catsel][0].click()
                 #time.sleep(2)
                 #click into requested event
-                [x for x in event_select.find_elements_by_tag_name('option') if event in x.get_attribute('text')][0].click()
+                time.sleep(1)
+                existing_games = opendf(f'{catsel}{event}')
+                matching_events = []
+                for x in event_select.find_elements_by_tag_name('option'):
+                    this_event_name = x.get_attribute('text')
+                    if event in this_event_name:
+                        matching_events.append(x)
+                for ev in matching_events:
+                    ev.click()
+                    existing_games = pull_results(existing_games,browser)
                 #time.sleep(2)
                 
             break
         except:
             pass
-    
-    
-    existing_games = opendf(f'{catsel}{event}')
-    
-    ref_timestamp = time.time()
-    weeks = 2
-    
-    for wk in range(weeks):
-        #Set date range  
-        today_time_struct = time.gmtime(ref_timestamp)
-        from_date_struct = time.gmtime(ref_timestamp - 6*24*3600)
-        
-        from_date_elem = browser.find_element_by_id('fromDate')
-        to_date_elem = browser.find_element_by_id('toDate')
-        from_date = time.strftime("%Y-%m-%d",from_date_struct)
-        to_date = time.strftime("%Y-%m-%d",today_time_struct)
-        browser.execute_script('document.getElementById("fromDate").value = "'+from_date+'"')
-        browser.execute_script('document.getElementById("toDate").value = "'+to_date+'"')
-        
-        #click search button
-        browser.find_element_by_name('go').click()
-        time.sleep(2)
-        
-        page = BS(browser.page_source,'html.parser')
-        existing_games = get_data_from_table(existing_games,page)
-                
-        ref_timestamp -= 7*24*3600
-        
+            
     existing_games = fix_names(existing_games)
     existing_games = consolidate_data(existing_games)
     
@@ -169,6 +176,16 @@ def get_names(s):
     #Team names may not be able to be parsed. In that case save a note in boolean form that will indicate it needs postprocessing
     try:
         hometeam,awayteam = [x.strip() for x in s.split(' - ')]
+        
+        bracket_name = re.findall('\(.*\)',hometeam)
+        if bracket_name:
+            hometeam = bracket_name[0].strip('() -')
+            
+        bracket_name = re.findall('\(.*\)',awayteam)
+        if bracket_name:
+            awayteam = bracket_name[0].strip('() -')
+        
+        
         return hometeam,awayteam,False
     except:
         return 'Unknown','Unknown',True
@@ -228,10 +245,10 @@ if __name__ == '__main__':
     
     browser = set_up_browser()
     
-    get_br_results(browser)
+    get_br_results(browser,event='eSports Battle')
     
-    browser.get('https://in.betradar.com/betradar/index.php')
+    #browser.get('https://in.betradar.com/betradar/index.php')
     
-    get_br_results(browser,event='Pro Player Cup - XBox')
+    #get_br_results(browser,event='eSports Battle')
     
     browser.close()

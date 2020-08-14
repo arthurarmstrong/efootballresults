@@ -138,7 +138,7 @@ def get_posted_note_results(browser):
         
     return master
     
-def click_seemore_buttons(browser,count_limit=500):
+def click_seemore_buttons(browser,count_limit=100):
     
     counter = 0
     
