@@ -12,7 +12,7 @@ from consolidate_data import consolidate_data
 
 def get_br_results(browser=None,waitForSelections=False,sport='Soccer',catsel='Electronic Leagues',event='Pro Player Cup - PS4'):
         
-    def pull_results(existing_games,browser,weeks=15):
+    def pull_results(existing_games,browser,weeks=1):
         ref_timestamp = time.time()
         
         for wk in range(weeks):
