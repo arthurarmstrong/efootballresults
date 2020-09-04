@@ -26,7 +26,7 @@ def main():
         master = pd.DataFrame()
         last_download_date = datetime.now() - timedelta(days=default_days_to_go_back)
         stop_date = last_download_date.strftime('%Y-%m-%d')
-        
+        #stop_date = '2020-03-01'
     
 
     #get  the calendar object
@@ -68,8 +68,8 @@ def main():
                 
                 try:
                     #Discard any 1st half data in case it accidentally gets parsed
-                    score = cols[3].text.split('(')[0]
-                    hscore,ascore = re.findall('[0-9]+',score)[:2]
+                    #score = cols[3].text.split('(')[0]
+                    hscore,ascore = re.findall('[0-9]+',cols[3].text)[:2]
                     hscore, ascore = [int(x) for x in [hscore,ascore]]
                 except:
                     hscore = ascore = np.nan
