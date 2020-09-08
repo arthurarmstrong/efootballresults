@@ -19,7 +19,7 @@ def main(browser=None):
     #get an instance of chrome going
     if not browser:
         browser =  openBrowser(headless=True)
-        browser.get('https://www.facebook.com/esbfifa')
+        browser.get('https://www.facebook.com/esportsbattle.football')
     else:
         pass
     
@@ -120,7 +120,7 @@ def get_posted_note_results(browser):
     master = pd.DataFrame()
     
     hrefs = browser.find_elements_by_tag_name('a')
-    hrefs = [a for a in hrefs if '/esportsbattle/' in a.get_attribute('href').lower()]
+    hrefs = [a for a in hrefs if a.get_attribute('href') and '/esportsbattle/' in a.get_attribute('href')]
     hrefs = [a.get_attribute('href') for a in hrefs]
     
     for h in hrefs:
@@ -138,7 +138,7 @@ def get_posted_note_results(browser):
         
     return master
     
-def click_seemore_buttons(browser,count_limit=100):
+def click_seemore_buttons(browser,count_limit=500):
     
     counter = 0
     
