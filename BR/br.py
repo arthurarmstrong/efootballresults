@@ -235,7 +235,7 @@ def set_up_browser():
     #click login button
     #browser.find_element_by_link_text('Login').click()
     
-    browser.execute_script('document.getElementById("username").value = "radar491"; document.getElementById("password").value = "9fsXxlojbz66"')
+    browser.execute_script('document.getElementById("username").value = "radar491"; document.getElementById("password").value = "L!Ru9JY8PzY7Jiv"')
     #click submit
     [x for x in browser.find_elements_by_tag_name('button') if x.get_attribute('type') == 'submit'][0].click()
 
